@@ -3,22 +3,22 @@ package usecase
 import (
 	"context"
 	"errors"
-	"gaman-microservice/user-service/internal/domain/model"
-	"gaman-microservice/user-service/internal/domain/repository"
+	"gaman-microservice/user-service/internal/domain/entity"
 	"gaman-microservice/user-service/internal/port/in"
+	"gaman-microservice/user-service/internal/port/out"
 )
 
 type userUseCase struct {
-	userRepo repository.UserRepository
+	userRepo out.UserRepository
 }
 
-func NewUserUseCase(userRepo repository.UserRepository) in.UserUseCase {
+func NewUserUseCase(userRepo out.UserRepository) in.UserUseCase {
 	return &userUseCase{
 		userRepo: userRepo,
 	}
 }
 
-func (u *userUseCase) Login(ctx context.Context, username, password string) (*model.User, string, error) {
+func (u *userUseCase) Login(ctx context.Context, username, password string) (*entity.User, string, error) {
 	user, err := u.userRepo.FindByUsername(ctx, username)
 	if err != nil {
 		return nil, "", err
@@ -33,6 +33,6 @@ func (u *userUseCase) Login(ctx context.Context, username, password string) (*mo
 	return user, token, nil
 }
 
-func (u *userUseCase) GetProfile(ctx context.Context, userID string) (*model.User, error) {
+func (u *userUseCase) GetProfile(ctx context.Context, userID string) (*entity.User, error) {
 	return u.userRepo.FindByID(ctx, userID)
 }

@@ -3,13 +3,13 @@ module gaman-microservice/user-service
 go 1.25.7
 
 require (
+	github.com/caarlos0/env/v11 v11.4.0
+	github.com/golobby/container/v3 v3.3.2
 	google.golang.org/grpc v1.79.3
 	google.golang.org/protobuf v1.36.11
 )
 
 require (
-	github.com/caarlos0/env/v11 v11.4.0 // indirect
-	github.com/golobby/container/v3 v3.3.2 // indirect
 	golang.org/x/net v0.48.0 // indirect
 	golang.org/x/sys v0.39.0 // indirect
 	golang.org/x/text v0.32.0 // indirect
