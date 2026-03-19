@@ -29,13 +29,13 @@ func (h *UserHandler) Login(ctx context.Context, req *userv1.LoginRequest) (*use
 	}, nil
 }
 
-func (h *UserHandler) Profile(ctx context.Context, req *userv1.ProfileRequest) (*userv1.ProfileResponse, error) {
+func (h *UserHandler) GetProfileById(ctx context.Context, req *userv1.GetProfileByIdRequest) (*userv1.GetProfileByIdResponse, error) {
 	user, err := h.userUseCase.GetProfile(ctx, req.GetUserId())
 	if err != nil {
 		return nil, err
 	}
 
-	return &userv1.ProfileResponse{
+	return &userv1.GetProfileByIdResponse{
 		UserId:   user.ID,
 		Username: user.Username,
 		Email:    user.Email,

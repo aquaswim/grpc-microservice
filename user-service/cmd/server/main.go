@@ -15,18 +15,16 @@ import (
 )
 
 func main() {
-	// Load config
-	cfg, err := config.Load()
-	if err != nil {
-		log.Fatalf("failed to load config: %v", err)
-	}
-
 	// Initialize Container
 	c := container.Init()
 
+	var cfg *config.Config
+	if err := c.Resolve(&cfg); err != nil {
+		log.Fatalf("failed to resolve config: %v", err)
+	}
+
 	var userHandler *usergrpc.UserHandler
-	err = c.Resolve(&userHandler)
-	if err != nil {
+	if err := c.Resolve(&userHandler); err != nil {
 		log.Fatalf("failed to resolve user handler: %v", err)
 	}
 
