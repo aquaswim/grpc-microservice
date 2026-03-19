@@ -8,4 +8,9 @@ import (
 type UserUseCase interface {
 	Login(ctx context.Context, username, password string) (*entity.User, string, error)
 	GetProfile(ctx context.Context, userID string) (*entity.User, error)
+	CreateUser(ctx context.Context, user *entity.User) (*entity.User, error)
+	GetUser(ctx context.Context, id string) (*entity.User, error)
+	UpdateUser(ctx context.Context, user *entity.User) (*entity.User, error)
+	DeleteUser(ctx context.Context, id string) error
+	ListUsers(ctx context.Context, limit uint64, cursor string) ([]*entity.User, error)
 }

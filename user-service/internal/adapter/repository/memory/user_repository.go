@@ -5,6 +5,7 @@ import (
 	"errors"
 	"gaman-microservice/user-service/internal/domain/entity"
 	"gaman-microservice/user-service/internal/port/out"
+	"slices"
 )
 
 type userMemoryRepository struct {
@@ -34,4 +35,54 @@ func (r *userMemoryRepository) FindByID(ctx context.Context, id string) (*entity
 		return nil, errors.New("user not found")
 	}
 	return user, nil
+}
+
+func (r *userMemoryRepository) Create(ctx context.Context, user *entity.User) error {
+	r.users[user.ID] = user
+	return nil
+}
+
+func (r *userMemoryRepository) Update(ctx context.Context, user *entity.User) error {
+	if _, ok := r.users[user.ID]; !ok {
+		return errors.New("user not found")
+	}
+	r.users[user.ID] = user
+	return nil
+}
+
+func (r *userMemoryRepository) Delete(ctx context.Context, id string) error {
+	if _, ok := r.users[id]; !ok {
+		return errors.New("user not found")
+	}
+	delete(r.users, id)
+	return nil
+}
+
+func (r *userMemoryRepository) List(ctx context.Context, limit uint64, cursor string) ([]*entity.User, error) {
+	var users []*entity.User
+	for _, user := range r.users {
+		users = append(users, user)
+	}
+
+	slices.SortFunc(users, func(a, b *entity.User) int {
+		if a.ID < b.ID {
+			return -1
+		}
+		if a.ID > b.ID {
+			return 1
+		}
+		return 0
+	})
+
+	var result []*entity.User
+	for _, user := range users {
+		if cursor != "" && user.ID <= cursor {
+			continue
+		}
+		result = append(result, user)
+		if uint64(len(result)) >= limit {
+			break
+		}
+	}
+	return result, nil
 }
