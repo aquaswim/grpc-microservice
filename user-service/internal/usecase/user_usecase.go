@@ -3,41 +3,46 @@ package usecase
 import (
 	"context"
 	"errors"
+	"fmt"
 	"gaman-microservice/user-service/internal/domain/entity"
 	"gaman-microservice/user-service/internal/port/in"
 	"gaman-microservice/user-service/internal/port/out"
 )
 
 type userUseCase struct {
-	userRepo out.UserRepository
+	userRepo     out.UserRepository
+	tokenManager out.TokenManager
 }
 
-func NewUserUseCase(userRepo out.UserRepository) in.UserUseCase {
+func NewUserUseCase(userRepo out.UserRepository, tokenManager out.TokenManager) in.UserUseCase {
 	return &userUseCase{
-		userRepo: userRepo,
+		userRepo:     userRepo,
+		tokenManager: tokenManager,
 	}
 }
 
-func (u *userUseCase) Login(ctx context.Context, username, password string) (*entity.User, string, error) {
+func (u *userUseCase) Login(ctx context.Context, username, password string) (*entity.User, *entity.TokenWithExpiry, error) {
 	user, err := u.userRepo.FindByUsername(ctx, username)
 	if err != nil {
-		return nil, "", err
+		return nil, nil, err
 	}
 
 	if err := user.ValidatePassword(password); err != nil {
-		return nil, "", errors.New("invalid credentials")
+		return nil, nil, errors.New("invalid credentials")
 	}
 
-	// Mock token
-	token := "mock-token-for-" + user.ID
-	return user, token, nil
+	token, expTime, err := u.tokenManager.Generate(ctx, &entity.TokenData{
+		Id:       user.ID,
+		Username: user.Username,
+	})
+	if err != nil {
+		return nil, nil, fmt.Errorf("failed to generate token: %w", err)
+	}
+	return user, &entity.TokenWithExpiry{Token: token, Expiry: expTime}, nil
 }
 
 func (u *userUseCase) ValidateToken(ctx context.Context, token string) (*entity.TokenData, error) {
-	// mock token data
-	return &entity.TokenData{
-		Id: "mock-user-id",
-	}, nil
+	return u.tokenManager.Validate(ctx, token)
 }
 
 func (u *userUseCase) CreateUser(ctx context.Context, user *entity.User) (*entity.User, error) {

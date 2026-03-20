@@ -6,7 +6,7 @@ import (
 )
 
 type UserUseCase interface {
-	Login(ctx context.Context, username, password string) (*entity.User, string, error)
+	Login(ctx context.Context, username, password string) (*entity.User, *entity.TokenWithExpiry, error)
 	ValidateToken(ctx context.Context, token string) (*entity.TokenData, error)
 	CreateUser(ctx context.Context, user *entity.User) (*entity.User, error)
 	GetUser(ctx context.Context, id string) (*entity.User, error)

@@ -2,10 +2,12 @@ package container
 
 import (
 	"database/sql"
+	"gaman-microservice/user-service/internal/adapter/auth"
 	usergrpc "gaman-microservice/user-service/internal/adapter/handler/grpc"
 	"gaman-microservice/user-service/internal/adapter/repository/postgres"
 	"gaman-microservice/user-service/internal/infrastructure/config"
 	"gaman-microservice/user-service/internal/infrastructure/pgsql"
+	"gaman-microservice/user-service/internal/port/out"
 	"gaman-microservice/user-service/internal/usecase"
 
 	"github.com/golobby/container/v3"
@@ -20,6 +22,11 @@ func Init() container.Container {
 	// DB
 	container.MustSingleton(c, func(cfg *config.Config) (*sql.DB, error) {
 		return pgsql.Connect(cfg.DatabaseUrl)
+	})
+
+	// Token Manager
+	container.MustSingleton(c, func(cfg *config.Config) (out.TokenManager, error) {
+		return auth.NewPasetoManager(cfg.TokenSecret, cfg.GetTokenExpiryDuration())
 	})
 
 	// Repository

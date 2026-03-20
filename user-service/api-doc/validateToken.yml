@@ -1,0 +1,14 @@
+info:
+  name: validateToken
+  type: grpc
+  seq: 2
+
+grpc:
+  url: "{{serverUrl}}"
+  method: /user.v1.UserService/ValidateToken
+  methodType: unary
+  message: |-
+    {
+      "token": "v4.local.OzPgzE3mqSchvgJrvsAdjEF7KU0xPmjTpv9ZdiYlNEscvaNxY2NeUPSxwK_p20wWsG7Y994vzOM-B-64DxRtb5pFLI-usMf9BZr1oAyfXO56Qo25BNpWJaoOhRibEX0bQIbHoXMezxe26eDuIdVDp1dAr_tfN95Up1SQqgdBEhg7aVsOIGpP3Ti57-SxE0llxBNh-2Hm0okbee993cn3idvJLOpmwjNeZtjCEtdPXkHjOEefE70MQbz_0AZ0FlLuceJzsmpAlYejLjy_-d70VOUDKfr_lSZl2NkCYDy2TWwjTeHeYoNBw1vqW3GtsB5nRZAWCaFkLXPhoKKG-shd"
+    }
+  auth: inherit

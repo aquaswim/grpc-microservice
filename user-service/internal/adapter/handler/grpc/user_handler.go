@@ -6,6 +6,7 @@ import (
 	userv1 "gaman-microservice/user-service/gen/user/v1"
 	"gaman-microservice/user-service/internal/domain/entity"
 	"gaman-microservice/user-service/internal/port/in"
+	"time"
 )
 
 type UserHandler struct {
@@ -26,8 +27,8 @@ func (h *UserHandler) Login(ctx context.Context, req *userv1.LoginRequest) (*use
 	}
 
 	return &userv1.LoginResponse{
-		Token:     token,
-		ExpiresAt: "2026-03-18T23:59:59Z",
+		Token:     token.Token,
+		ExpiresAt: token.Expiry.Format(time.RFC3339),
 	}, nil
 }
 

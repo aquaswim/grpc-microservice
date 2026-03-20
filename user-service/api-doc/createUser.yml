@@ -1,7 +1,7 @@
 info:
   name: createUser
   type: grpc
-  seq: 2
+  seq: 3
 
 grpc:
   url: "{{serverUrl}}"
