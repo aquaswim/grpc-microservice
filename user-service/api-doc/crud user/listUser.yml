@@ -1,7 +1,7 @@
 info:
   name: listUser
   type: grpc
-  seq: 4
+  seq: 3
 
 grpc:
   url: "{{serverUrl}}"
