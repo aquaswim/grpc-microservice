@@ -6,8 +6,6 @@ import (
 	userv1 "gaman-microservice/user-service/gen/user/v1"
 	"gaman-microservice/user-service/internal/domain/entity"
 	"gaman-microservice/user-service/internal/port/in"
-
-	"github.com/google/uuid"
 )
 
 type UserHandler struct {
@@ -47,11 +45,11 @@ func (h *UserHandler) ValidateToken(ctx context.Context, request *userv1.Validat
 }
 
 func (h *UserHandler) CreateUser(ctx context.Context, req *userv1.CreateUserRequest) (*userv1.CreateUserResponse, error) {
-	user := &entity.User{
-		ID:       uuid.Must(uuid.NewV7()).String(),
-		Username: req.GetUsername(),
-		Email:    req.GetEmail(),
-		Password: req.GetPassword(),
+	user := entity.NewUserWithAutoId()
+	user.Username = req.GetUsername()
+	user.Email = req.GetEmail()
+	if err := user.SetPassword(req.GetPassword()); err != nil {
+		return nil, err
 	}
 
 	createdUser, err := h.userUseCase.CreateUser(ctx, user)

@@ -24,7 +24,7 @@ func (u *userUseCase) Login(ctx context.Context, username, password string) (*en
 		return nil, "", err
 	}
 
-	if user.Password != password {
+	if err := user.ValidatePassword(password); err != nil {
 		return nil, "", errors.New("invalid credentials")
 	}
 
