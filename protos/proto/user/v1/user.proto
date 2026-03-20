@@ -9,6 +9,7 @@ option go_package = "user/v1;userv1";
 service UserService {
   // Auth
   rpc Login(LoginRequest) returns (LoginResponse);
+  rpc ValidateToken(ValidateTokenRequest) returns (ValidateTokenResponse);
 
   // CRUD User Module
   rpc CreateUser(CreateUserRequest) returns (CreateUserResponse);
@@ -77,4 +78,14 @@ message ListUsersRequest {
 message ListUsersResponse {
   repeated User users = 1;
   common.v1.PaginationResponse pagination = 2;
+}
+
+message ValidateTokenRequest {
+  string token = 1;
+}
+
+message ValidateTokenResponse {
+  string token = 1;
+  string id = 2;
+  string username = 3;
 }

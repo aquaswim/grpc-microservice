@@ -33,6 +33,13 @@ func (u *userUseCase) Login(ctx context.Context, username, password string) (*en
 	return user, token, nil
 }
 
+func (u *userUseCase) ValidateToken(ctx context.Context, token string) (*entity.TokenData, error) {
+	// mock token data
+	return &entity.TokenData{
+		Id: "mock-user-id",
+	}, nil
+}
+
 func (u *userUseCase) CreateUser(ctx context.Context, user *entity.User) (*entity.User, error) {
 	err := u.userRepo.Create(ctx, user)
 	if err != nil {

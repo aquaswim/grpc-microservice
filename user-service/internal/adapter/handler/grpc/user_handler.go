@@ -33,6 +33,19 @@ func (h *UserHandler) Login(ctx context.Context, req *userv1.LoginRequest) (*use
 	}, nil
 }
 
+func (h *UserHandler) ValidateToken(ctx context.Context, request *userv1.ValidateTokenRequest) (*userv1.ValidateTokenResponse, error) {
+	tokenData, err := h.userUseCase.ValidateToken(ctx, request.GetToken())
+	if err != nil {
+		return nil, err
+	}
+
+	return &userv1.ValidateTokenResponse{
+		Token:    request.GetToken(),
+		Id:       tokenData.Id,
+		Username: tokenData.Username,
+	}, nil
+}
+
 func (h *UserHandler) CreateUser(ctx context.Context, req *userv1.CreateUserRequest) (*userv1.CreateUserResponse, error) {
 	user := &entity.User{
 		ID:       uuid.Must(uuid.NewV7()).String(),
