@@ -33,19 +33,6 @@ func (h *UserHandler) Login(ctx context.Context, req *userv1.LoginRequest) (*use
 	}, nil
 }
 
-func (h *UserHandler) GetProfileById(ctx context.Context, req *userv1.GetProfileByIdRequest) (*userv1.GetProfileByIdResponse, error) {
-	user, err := h.userUseCase.GetProfile(ctx, req.GetUserId())
-	if err != nil {
-		return nil, err
-	}
-
-	return &userv1.GetProfileByIdResponse{
-		UserId:   user.ID,
-		Username: user.Username,
-		Email:    user.Email,
-	}, nil
-}
-
 func (h *UserHandler) CreateUser(ctx context.Context, req *userv1.CreateUserRequest) (*userv1.CreateUserResponse, error) {
 	user := &entity.User{
 		ID:       uuid.Must(uuid.NewV7()).String(),
