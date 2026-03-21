@@ -6,3 +6,5 @@ http:
     - selector: user.v1.UserService.Login
       post: /v1/auth/login
       body: "*"
+    - selector: user.v1.UserService.GetMyProfile
+      get: /v1/auth/profile

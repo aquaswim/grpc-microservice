@@ -10,6 +10,7 @@ service UserService {
   // Auth
   rpc Login(LoginRequest) returns (LoginResponse);
   rpc ValidateToken(ValidateTokenRequest) returns (ValidateTokenResponse);
+  rpc GetMyProfile(GetMyProfileRequest) returns (GetMyProfileResponse);
 
   // CRUD User Module
   rpc CreateUser(CreateUserRequest) returns (CreateUserResponse);
@@ -27,6 +28,12 @@ message LoginRequest {
 message LoginResponse {
   string token = 1;
   string expires_at = 2;
+}
+
+message GetMyProfileRequest {}
+
+message GetMyProfileResponse {
+  User user = 1;
 }
 
 message User {
@@ -81,7 +88,7 @@ message ListUsersResponse {
 }
 
 message ValidateTokenRequest {
-  string token = 1;
+  optional string token = 1;
 }
 
 message ValidateTokenResponse {

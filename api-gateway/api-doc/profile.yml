@@ -1,0 +1,21 @@
+info:
+  name: profile
+  type: http
+  seq: 2
+
+http:
+  method: GET
+  url: http://localhost:8080/v1/auth/profile
+  headers:
+    - name: Authorization
+      value: v4.local.ufaQa-NjdXBcWGa4PjghTA_4zoq8hFKo3YdveFtwAW2w7oQnra_2llyupiyVvAMlLfi10AqyeG8626h9XQqe1Ou9booZDKRbDThCXr_APXIXVKG34IW7t_FS5fwTg3GioZcUsbDBKHPf2n4JYVWQARlBvpZfpO4r2aZEwPIQExh_cs_bDFc-E1rEVg0dwEnZfwwnWWkubY2QIihky_MCW_68LB8LD-gAGJ9E0Hvp1Uue-O3nnS4T60ptPJUUxM8KmR_g0FBcSbnXYfbk4a4sEUAfQv8BuN7myKVmhDsWPSnrfhvZSKygKrCjNGI
+  body:
+    type: json
+    data: ""
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

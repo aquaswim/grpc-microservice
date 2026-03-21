@@ -2,11 +2,15 @@ package grpc
 
 import (
 	"context"
+	"errors"
 	commonv1 "gaman-microservice/user-service/gen/common/v1"
 	userv1 "gaman-microservice/user-service/gen/user/v1"
 	"gaman-microservice/user-service/internal/domain/entity"
 	"gaman-microservice/user-service/internal/port/in"
+	"strings"
 	"time"
+
+	"google.golang.org/grpc/metadata"
 )
 
 type UserHandler struct {
@@ -33,15 +37,46 @@ func (h *UserHandler) Login(ctx context.Context, req *userv1.LoginRequest) (*use
 }
 
 func (h *UserHandler) ValidateToken(ctx context.Context, request *userv1.ValidateTokenRequest) (*userv1.ValidateTokenResponse, error) {
-	tokenData, err := h.userUseCase.ValidateToken(ctx, request.GetToken())
+	token := request.GetToken()
+	if token == "" {
+		// get token from metadata
+		if md, ok := metadata.FromIncomingContext(ctx); ok {
+			if authToken, ok := md["authorization"]; ok {
+				token = strings.TrimPrefix(authToken[0], "Bearer ")
+			}
+		}
+	}
+
+	// check if token still empty
+	if token == "" {
+		return nil, errors.New("token is empty")
+	}
+
+	tokenData, err := h.userUseCase.ValidateToken(ctx, token)
 	if err != nil {
 		return nil, err
 	}
 
 	return &userv1.ValidateTokenResponse{
-		Token:    request.GetToken(),
+		Token:    token,
 		Id:       tokenData.Id,
 		Username: tokenData.Username,
+	}, nil
+}
+
+func (h *UserHandler) GetMyProfile(ctx context.Context, _ *userv1.GetMyProfileRequest) (*userv1.GetMyProfileResponse, error) {
+	validateTokenResponse, err := h.ValidateToken(ctx, &userv1.ValidateTokenRequest{})
+	if err != nil {
+		return nil, err
+	}
+
+	getUserResponse, err := h.GetUser(ctx, &userv1.GetUserRequest{Id: validateTokenResponse.Id})
+	if err != nil {
+		return nil, err
+	}
+
+	return &userv1.GetMyProfileResponse{
+		User: getUserResponse.User,
 	}, nil
 }
 
