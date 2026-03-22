@@ -22,16 +22,7 @@ func main() {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 
-	mux := runtime.NewServeMux(
-		runtime.WithIncomingHeaderMatcher(func(key string) (string, bool) {
-			switch key {
-			case "Authorization":
-				return key, true
-			default:
-				return runtime.DefaultHeaderMatcher(key)
-			}
-		}),
-	)
+	mux := runtime.NewServeMux()
 	opts := []grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials())}
 	err = userv1.RegisterUserServiceHandlerFromEndpoint(ctx, mux, cfg.UserSvcAddr, opts)
 	if err != nil {
