@@ -1,7 +1,7 @@
 package container
 
 import (
-	"database/sql"
+	"context"
 	"gaman-microservice/user-service/internal/adapter/auth"
 	usergrpc "gaman-microservice/user-service/internal/adapter/handler/grpc"
 	"gaman-microservice/user-service/internal/adapter/repository/postgres"
@@ -12,6 +12,7 @@ import (
 	"os"
 
 	"github.com/golobby/container/v3"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 )
@@ -31,8 +32,8 @@ func Init() container.Container {
 	})
 
 	// DB
-	container.MustSingleton(c, func(cfg *config.Config) (*sql.DB, error) {
-		return pgsql.Connect(cfg.DatabaseUrl)
+	container.MustSingleton(c, func(cfg *config.Config) (*pgxpool.Pool, error) {
+		return pgsql.Connect(context.Background(), cfg.DatabaseUrl)
 	})
 
 	// Token Manager

@@ -2,21 +2,22 @@ package postgres
 
 import (
 	"context"
-	"database/sql"
 	"errors"
 	"fmt"
 	"gaman-microservice/user-service/internal/domain/entity"
 	"gaman-microservice/user-service/internal/port/out"
 
 	"github.com/Masterminds/squirrel"
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type userRepository struct {
-	db      *sql.DB
+	db      *pgxpool.Pool
 	builder squirrel.StatementBuilderType
 }
 
-func NewUserRepository(db *sql.DB) out.UserRepository {
+func NewUserRepository(db *pgxpool.Pool) out.UserRepository {
 	return &userRepository{
 		db:      db,
 		builder: squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar),
@@ -33,9 +34,9 @@ func (r *userRepository) FindByUsername(ctx context.Context, username string) (*
 	}
 
 	user := &entity.User{}
-	err = r.db.QueryRowContext(ctx, query, args...).Scan(&user.ID, &user.Username, &user.Password, &user.Email)
+	err = r.db.QueryRow(ctx, query, args...).Scan(&user.ID, &user.Username, &user.Password, &user.Email)
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
+		if errors.Is(err, pgx.ErrNoRows) {
 			return nil, fmt.Errorf("user not found")
 		}
 		return nil, fmt.Errorf("failed to query user: %w", err)
@@ -54,9 +55,9 @@ func (r *userRepository) FindByID(ctx context.Context, id string) (*entity.User,
 	}
 
 	user := &entity.User{}
-	err = r.db.QueryRowContext(ctx, query, args...).Scan(&user.ID, &user.Username, &user.Password, &user.Email)
+	err = r.db.QueryRow(ctx, query, args...).Scan(&user.ID, &user.Username, &user.Password, &user.Email)
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
+		if errors.Is(err, pgx.ErrNoRows) {
 			return nil, fmt.Errorf("user not found")
 		}
 		return nil, fmt.Errorf("failed to query user: %w", err)
@@ -74,7 +75,7 @@ func (r *userRepository) Create(ctx context.Context, user *entity.User) error {
 		return fmt.Errorf("failed to build query: %w", err)
 	}
 
-	_, err = r.db.ExecContext(ctx, query, args...)
+	_, err = r.db.Exec(ctx, query, args...)
 	if err != nil {
 		return fmt.Errorf("failed to insert user: %w", err)
 	}
@@ -92,15 +93,12 @@ func (r *userRepository) Update(ctx context.Context, user *entity.User) error {
 		return fmt.Errorf("failed to build query: %w", err)
 	}
 
-	res, err := r.db.ExecContext(ctx, query, args...)
+	res, err := r.db.Exec(ctx, query, args...)
 	if err != nil {
 		return fmt.Errorf("failed to update user: %w", err)
 	}
 
-	rows, err := res.RowsAffected()
-	if err != nil {
-		return fmt.Errorf("failed to get rows affected: %w", err)
-	}
+	rows := res.RowsAffected()
 	if rows == 0 {
 		return fmt.Errorf("user not found")
 	}
@@ -116,15 +114,12 @@ func (r *userRepository) Delete(ctx context.Context, id string) error {
 		return fmt.Errorf("failed to build query: %w", err)
 	}
 
-	res, err := r.db.ExecContext(ctx, query, args...)
+	res, err := r.db.Exec(ctx, query, args...)
 	if err != nil {
 		return fmt.Errorf("failed to delete user: %w", err)
 	}
 
-	rows, err := res.RowsAffected()
-	if err != nil {
-		return fmt.Errorf("failed to get rows affected: %w", err)
-	}
+	rows := res.RowsAffected()
 	if rows == 0 {
 		return fmt.Errorf("user not found")
 	}
@@ -147,7 +142,7 @@ func (r *userRepository) List(ctx context.Context, limit uint64, cursor string) 
 		return nil, fmt.Errorf("failed to build query: %w", err)
 	}
 
-	rows, err := r.db.QueryContext(ctx, query, args...)
+	rows, err := r.db.Query(ctx, query, args...)
 	if err != nil {
 		return nil, fmt.Errorf("failed to query users: %w", err)
 	}
