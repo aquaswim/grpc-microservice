@@ -1,16 +1,13 @@
 package main
 
 import (
-	"fmt"
-	"log"
-	"net"
-
 	userv1 "gaman-microservice/user-service/gen/user/v1"
 	usergrpc "gaman-microservice/user-service/internal/adapter/handler/grpc"
 	"gaman-microservice/user-service/internal/infrastructure/config"
 	"gaman-microservice/user-service/internal/infrastructure/container"
+	"net"
 
-	"google.golang.org/grpc"
+	"github.com/rs/zerolog/log"
 	"google.golang.org/grpc/reflection"
 )
 
@@ -20,22 +17,22 @@ func main() {
 
 	var cfg *config.Config
 	if err := c.Resolve(&cfg); err != nil {
-		log.Fatalf("failed to resolve config: %v", err)
+		log.Fatal().Err(err).Msg("failed to resolve config")
 	}
 
 	var userHandler *usergrpc.UserHandler
 	if err := c.Resolve(&userHandler); err != nil {
-		log.Fatalf("failed to resolve user handler: %v", err)
+		log.Fatal().Err(err).Msg("failed to resolve user handler")
 	}
 
 	// Create TCP listener
 	lis, err := net.Listen("tcp", cfg.TcpListenerUrl)
 	if err != nil {
-		log.Fatalf("failed to listen: %v", err)
+		log.Fatal().Err(err).Msg("failed to listen")
 	}
 
 	// Create gRPC server
-	s := grpc.NewServer()
+	s := usergrpc.NewServer()
 
 	// Register UserService
 	userv1.RegisterUserServiceServer(s, userHandler)
@@ -43,8 +40,8 @@ func main() {
 	// Register reflection service on gRPC server
 	reflection.Register(s)
 
-	fmt.Printf("User Service is running on %s...\n", cfg.TcpListenerUrl)
+	log.Info().Str("url", cfg.TcpListenerUrl).Msg("User Service is running")
 	if err := s.Serve(lis); err != nil {
-		log.Fatalf("failed to serve: %v", err)
+		log.Fatal().Err(err).Msg("failed to serve")
 	}
 }

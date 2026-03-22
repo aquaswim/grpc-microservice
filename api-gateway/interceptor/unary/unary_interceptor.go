@@ -24,7 +24,7 @@ func RequestIdInterceptor() grpc.UnaryClientInterceptor {
 		opts ...grpc.CallOption,
 	) error {
 		if requestID, ok := ctx.Value(constant.CtxKeyRequestID).(string); ok {
-			ctx = metadata.AppendToOutgoingContext(ctx, "x-request-id", requestID)
+			ctx = metadata.AppendToOutgoingContext(ctx, constant.MetadataKeyRequestID, requestID)
 		}
 
 		return invoker(ctx, method, req, reply, cc, opts...)

@@ -8,6 +8,7 @@ import (
 )
 
 type Config struct {
+	PrettyLog          bool   `env:"PRETTY_LOG" envDefault:"false"`
 	TcpListenerUrl     string `env:"TCP_LISTENER_URL" envDefault:":50051"`
 	DatabaseUrl        string `env:"DATABASE_URL,required"`
 	TokenSecret        string `env:"TOKEN_SECRET,required"`

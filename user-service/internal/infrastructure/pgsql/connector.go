@@ -2,9 +2,9 @@ package pgsql
 
 import (
 	"database/sql"
-	"log"
 
 	_ "github.com/lib/pq"
+	"github.com/rs/zerolog/log"
 )
 
 func Connect(url string) (*sql.DB, error) {
@@ -16,7 +16,7 @@ func Connect(url string) (*sql.DB, error) {
 	if err := db.Ping(); err != nil {
 		return nil, err
 	}
-	log.Println("Connected to PostgreSQL")
+	log.Info().Msg("Connected to PostgreSQL")
 
 	return db, nil
 }

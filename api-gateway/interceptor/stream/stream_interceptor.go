@@ -24,7 +24,7 @@ func RequestIdInterceptor() grpc.StreamClientInterceptor {
 		opts ...grpc.CallOption,
 	) (grpc.ClientStream, error) {
 		if requestID, ok := ctx.Value(constant.CtxKeyRequestID).(string); ok {
-			ctx = metadata.AppendToOutgoingContext(ctx, "x-request-id", requestID)
+			ctx = metadata.AppendToOutgoingContext(ctx, constant.MetadataKeyRequestID, requestID)
 		}
 
 		return streamer(ctx, desc, cc, method, opts...)

@@ -9,8 +9,11 @@ import (
 	"gaman-microservice/user-service/internal/infrastructure/pgsql"
 	"gaman-microservice/user-service/internal/port/out"
 	"gaman-microservice/user-service/internal/usecase"
+	"os"
 
 	"github.com/golobby/container/v3"
+	"github.com/rs/zerolog"
+	"github.com/rs/zerolog/log"
 )
 
 func Init() container.Container {
@@ -18,6 +21,14 @@ func Init() container.Container {
 
 	// Config
 	container.MustSingleton(c, config.Load)
+
+	// setup logging
+	container.MustCall(c, func(cfg *config.Config) {
+		if cfg.PrettyLog {
+			log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stdout})
+			log.Warn().Msgf("Pretty logging is enabled, this must only be used in local!")
+		}
+	})
 
 	// DB
 	container.MustSingleton(c, func(cfg *config.Config) (*sql.DB, error) {
