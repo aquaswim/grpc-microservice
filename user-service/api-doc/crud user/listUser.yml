@@ -1,0 +1,17 @@
+info:
+  name: listUser
+  type: grpc
+  seq: 3
+
+grpc:
+  url: "{{serverUrl}}"
+  method: /user.v1.UserService/ListUsers
+  methodType: unary
+  message: |-
+    {
+      "pagination": {
+        "page_size": 10,
+        "page_token": ""
+      }
+    }
+  auth: inherit

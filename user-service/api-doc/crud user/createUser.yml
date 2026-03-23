@@ -1,0 +1,16 @@
+info:
+  name: createUser
+  type: grpc
+  seq: 3
+
+grpc:
+  url: "{{serverUrl}}"
+  method: /user.v1.UserService/CreateUser
+  methodType: unary
+  message: |-
+    {
+      "username": "{{$randomFirstName}}{{$isoTimestamp}}",
+      "email": "{{$randomEmail}}",
+      "password": "password123"
+    }
+  auth: inherit

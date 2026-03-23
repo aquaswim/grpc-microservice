@@ -1,0 +1,16 @@
+info:
+  name: updateUser
+  type: grpc
+  seq: 4
+
+grpc:
+  url: "{{serverUrl}}"
+  method: /user.v1.UserService/UpdateUser
+  methodType: unary
+  message: |-
+    {
+      "id": "019d0a60-dc74-7342-8d5e-a1688daf555e",
+      "username": "curtus-edit",
+      "email": "{{$randomEmail}}"
+    }
+  auth: inherit

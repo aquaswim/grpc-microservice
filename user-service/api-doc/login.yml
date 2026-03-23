@@ -1,0 +1,15 @@
+info:
+  name: login
+  type: grpc
+  seq: 1
+
+grpc:
+  url: "{{serverUrl}}"
+  method: /user.v1.UserService/Login
+  methodType: unary
+  message: |-
+    {
+      "username": "curtus-edit",
+      "password": "password123"
+    }
+  auth: inherit

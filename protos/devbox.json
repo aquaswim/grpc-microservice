@@ -7,7 +7,7 @@
     ],
     "scripts": {
       "lint": "buf lint",
-      "format": "buf format"
+      "format": "buf format -w"
     }
   }
 }

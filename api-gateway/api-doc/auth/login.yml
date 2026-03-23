@@ -1,0 +1,30 @@
+info:
+  name: login
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: "{{baseUrl}}/v1/auth/login"
+  body:
+    type: json
+    data: |-
+      {
+        "username": "curtus-edit",
+        "password": "password123"
+      }
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        if (res.getStatus() == 200) {
+          const token = res.getBody().token;
+          bru.setEnvVar("__login_token", token, {persist: false})
+        }
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

@@ -1,0 +1,14 @@
+info:
+  name: deleteUser
+  type: grpc
+  seq: 5
+
+grpc:
+  url: "{{serverUrl}}"
+  method: /user.v1.UserService/DeleteUser
+  methodType: unary
+  message: |-
+    {
+      "id": "019d0a60-e1a1-7622-81fd-d5ad84bb46de"
+    }
+  auth: inherit
