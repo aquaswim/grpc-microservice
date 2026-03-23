@@ -2,9 +2,12 @@ package grpc
 
 import (
 	"context"
+	"errors"
+	appError "gaman-microservice/user-service/internal/domain/app_error"
 	"runtime/debug"
 	"time"
 
+	"github.com/joomcode/errorx"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"google.golang.org/grpc"
@@ -69,6 +72,7 @@ func UnaryLoggingInterceptor(ctx context.Context, req any, info *grpc.UnaryServe
 	}
 
 	logger.Info().
+		Err(err).
 		Dur("duration", duration).
 		Str("status", st.Code().String()).
 		Msg("request finished")
@@ -92,6 +96,7 @@ func StreamLoggingInterceptor(srv any, ss grpc.ServerStream, info *grpc.StreamSe
 	}
 
 	logger.Info().
+		Err(err).
 		Dur("duration", duration).
 		Str("status", st.Code().String()).
 		Msg("stream request finished")
@@ -127,21 +132,6 @@ func StreamRecoveryInterceptor(srv any, ss grpc.ServerStream, info *grpc.StreamS
 	return handler(srv, ss)
 }
 
-func NewServer() *grpc.Server {
-	return grpc.NewServer(
-		grpc.ChainUnaryInterceptor(
-			UnaryRequestIdInterceptor,
-			UnaryRecoveryInterceptor,
-			UnaryLoggingInterceptor,
-		),
-		grpc.ChainStreamInterceptor(
-			StreamRequestIdInterceptor,
-			StreamRecoveryInterceptor,
-			StreamLoggingInterceptor,
-		),
-	)
-}
-
 func getRequestIdFromContext(ctx context.Context) string {
 	if requestId, ok := ctx.Value(requestIdKey{}).(string); ok {
 		return requestId
@@ -156,4 +146,63 @@ func registerLogger(ctx context.Context, methodName string) context.Context {
 		Logger()
 
 	return l.WithContext(ctx)
+}
+
+func toGrpcError(code codes.Code, err error) error {
+	var appErr *errorx.Error
+	if !errors.As(err, &appErr) {
+		return status.Errorf(code, "%s", err)
+	}
+	return status.Errorf(code, "%s", appErr.Message())
+}
+
+func errorMapper(ctx context.Context, err error) error {
+	if err == nil {
+		return nil
+	}
+
+	zerolog.Ctx(ctx).Error().Err(err).Msgf("Error: %+v", err)
+
+	errType := appError.Switch(err)
+
+	switch errType {
+	case appError.ErrNotFound:
+		return toGrpcError(codes.NotFound, err)
+	case appError.ErrValidation:
+		return toGrpcError(codes.InvalidArgument, err)
+	case appError.ErrUnauthorized:
+		return toGrpcError(codes.Unauthenticated, err)
+	default:
+		return toGrpcError(codes.Internal, err)
+	}
+}
+
+func StreamErrorMappingInterceptor(srv any, ss grpc.ServerStream, _ *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
+	err := handler(srv, ss)
+	return errorMapper(ss.Context(), err)
+}
+
+func UnaryErrorMappingInterceptor(ctx context.Context, req any, _ *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (any, error) {
+	resp, err := handler(ctx, req)
+	if err != nil {
+		return nil, errorMapper(ctx, err)
+	}
+	return resp, nil
+}
+
+func NewServer() *grpc.Server {
+	return grpc.NewServer(
+		grpc.ChainUnaryInterceptor(
+			UnaryRequestIdInterceptor,
+			UnaryRecoveryInterceptor,
+			UnaryLoggingInterceptor,
+			UnaryErrorMappingInterceptor,
+		),
+		grpc.ChainStreamInterceptor(
+			StreamRequestIdInterceptor,
+			StreamRecoveryInterceptor,
+			StreamLoggingInterceptor,
+			StreamErrorMappingInterceptor,
+		),
+	)
 }

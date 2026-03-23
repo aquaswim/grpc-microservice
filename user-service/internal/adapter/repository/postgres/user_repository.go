@@ -3,7 +3,7 @@ package postgres
 import (
 	"context"
 	"errors"
-	"fmt"
+	appError "gaman-microservice/user-service/internal/domain/app_error"
 	"gaman-microservice/user-service/internal/domain/entity"
 	"gaman-microservice/user-service/internal/port/out"
 
@@ -30,16 +30,16 @@ func (r *userRepository) FindByUsername(ctx context.Context, username string) (*
 		Where(squirrel.Eq{"username": username}).
 		ToSql()
 	if err != nil {
-		return nil, fmt.Errorf("failed to build query: %w", err)
+		return nil, appError.ErrInternal.WrapWithNoMessage(err)
 	}
 
 	user := &entity.User{}
 	err = r.db.QueryRow(ctx, query, args...).Scan(&user.ID, &user.Username, &user.Password, &user.Email)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			return nil, fmt.Errorf("user not found")
+			return nil, appError.ErrNotFound.Wrap(err, "user not found")
 		}
-		return nil, fmt.Errorf("failed to query user: %w", err)
+		return nil, appError.ErrInternal.WrapWithNoMessage(err)
 	}
 
 	return user, nil
@@ -51,16 +51,16 @@ func (r *userRepository) FindByID(ctx context.Context, id string) (*entity.User,
 		Where(squirrel.Eq{"id": id}).
 		ToSql()
 	if err != nil {
-		return nil, fmt.Errorf("failed to build query: %w", err)
+		return nil, appError.ErrInternal.WrapWithNoMessage(err)
 	}
 
 	user := &entity.User{}
 	err = r.db.QueryRow(ctx, query, args...).Scan(&user.ID, &user.Username, &user.Password, &user.Email)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			return nil, fmt.Errorf("user not found")
+			return nil, appError.ErrNotFound.Wrap(err, "user not found")
 		}
-		return nil, fmt.Errorf("failed to query user: %w", err)
+		return nil, appError.ErrInternal.WrapWithNoMessage(err)
 	}
 
 	return user, nil
@@ -72,12 +72,12 @@ func (r *userRepository) Create(ctx context.Context, user *entity.User) error {
 		Values(user.ID, user.Username, user.Password, user.Email).
 		ToSql()
 	if err != nil {
-		return fmt.Errorf("failed to build query: %w", err)
+		return appError.ErrInternal.WrapWithNoMessage(err)
 	}
 
 	_, err = r.db.Exec(ctx, query, args...)
 	if err != nil {
-		return fmt.Errorf("failed to insert user: %w", err)
+		return appError.ErrInternal.Wrap(err, "failed to insert user")
 	}
 
 	return nil
@@ -90,17 +90,17 @@ func (r *userRepository) Update(ctx context.Context, user *entity.User) error {
 		Where(squirrel.Eq{"id": user.ID}).
 		ToSql()
 	if err != nil {
-		return fmt.Errorf("failed to build query: %w", err)
+		return appError.ErrInternal.WrapWithNoMessage(err)
 	}
 
 	res, err := r.db.Exec(ctx, query, args...)
 	if err != nil {
-		return fmt.Errorf("failed to update user: %w", err)
+		return appError.ErrInternal.WrapWithNoMessage(err)
 	}
 
 	rows := res.RowsAffected()
 	if rows == 0 {
-		return fmt.Errorf("user not found")
+		return appError.ErrNotFound.New("user not found")
 	}
 
 	return nil
@@ -111,17 +111,17 @@ func (r *userRepository) Delete(ctx context.Context, id string) error {
 		Where(squirrel.Eq{"id": id}).
 		ToSql()
 	if err != nil {
-		return fmt.Errorf("failed to build query: %w", err)
+		return appError.ErrInternal.WrapWithNoMessage(err)
 	}
 
 	res, err := r.db.Exec(ctx, query, args...)
 	if err != nil {
-		return fmt.Errorf("failed to delete user: %w", err)
+		return appError.ErrInternal.WrapWithNoMessage(err)
 	}
 
 	rows := res.RowsAffected()
 	if rows == 0 {
-		return fmt.Errorf("user not found")
+		return appError.ErrNotFound.New("user not found")
 	}
 
 	return nil
@@ -139,12 +139,12 @@ func (r *userRepository) List(ctx context.Context, limit uint64, cursor string) 
 
 	query, args, err := builder.ToSql()
 	if err != nil {
-		return nil, fmt.Errorf("failed to build query: %w", err)
+		return nil, appError.ErrInternal.WrapWithNoMessage(err)
 	}
 
 	rows, err := r.db.Query(ctx, query, args...)
 	if err != nil {
-		return nil, fmt.Errorf("failed to query users: %w", err)
+		return nil, appError.ErrInternal.WrapWithNoMessage(err)
 	}
 	defer rows.Close()
 
@@ -153,13 +153,13 @@ func (r *userRepository) List(ctx context.Context, limit uint64, cursor string) 
 		user := &entity.User{}
 		err = rows.Scan(&user.ID, &user.Username, &user.Password, &user.Email)
 		if err != nil {
-			return nil, fmt.Errorf("failed to scan user: %w", err)
+			return nil, appError.ErrInternal.WrapWithNoMessage(err)
 		}
 		users = append(users, user)
 	}
 
 	if err = rows.Err(); err != nil {
-		return nil, fmt.Errorf("rows error: %w", err)
+		return nil, appError.ErrInternal.WrapWithNoMessage(err)
 	}
 
 	return users, nil

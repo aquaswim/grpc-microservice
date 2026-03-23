@@ -2,7 +2,7 @@ package memory
 
 import (
 	"context"
-	"errors"
+	appError "gaman-microservice/user-service/internal/domain/app_error"
 	"gaman-microservice/user-service/internal/domain/entity"
 	"gaman-microservice/user-service/internal/port/out"
 	"slices"
@@ -20,45 +20,45 @@ func NewUserMemoryRepository() out.UserRepository {
 	}
 }
 
-func (r *userMemoryRepository) FindByUsername(ctx context.Context, username string) (*entity.User, error) {
+func (r *userMemoryRepository) FindByUsername(_ context.Context, username string) (*entity.User, error) {
 	for _, user := range r.users {
 		if user.Username == username {
 			return user, nil
 		}
 	}
-	return nil, errors.New("user not found")
+	return nil, appError.ErrNotFound.New("user not found")
 }
 
-func (r *userMemoryRepository) FindByID(ctx context.Context, id string) (*entity.User, error) {
+func (r *userMemoryRepository) FindByID(_ context.Context, id string) (*entity.User, error) {
 	user, ok := r.users[id]
 	if !ok {
-		return nil, errors.New("user not found")
+		return nil, appError.ErrNotFound.New("user not found")
 	}
 	return user, nil
 }
 
-func (r *userMemoryRepository) Create(ctx context.Context, user *entity.User) error {
+func (r *userMemoryRepository) Create(_ context.Context, user *entity.User) error {
 	r.users[user.ID] = user
 	return nil
 }
 
-func (r *userMemoryRepository) Update(ctx context.Context, user *entity.User) error {
+func (r *userMemoryRepository) Update(_ context.Context, user *entity.User) error {
 	if _, ok := r.users[user.ID]; !ok {
-		return errors.New("user not found")
+		return appError.ErrNotFound.New("user not found")
 	}
 	r.users[user.ID] = user
 	return nil
 }
 
-func (r *userMemoryRepository) Delete(ctx context.Context, id string) error {
+func (r *userMemoryRepository) Delete(_ context.Context, id string) error {
 	if _, ok := r.users[id]; !ok {
-		return errors.New("user not found")
+		return appError.ErrNotFound.New("user not found")
 	}
 	delete(r.users, id)
 	return nil
 }
 
-func (r *userMemoryRepository) List(ctx context.Context, limit uint64, cursor string) ([]*entity.User, error) {
+func (r *userMemoryRepository) List(_ context.Context, limit uint64, cursor string) ([]*entity.User, error) {
 	var users []*entity.User
 	for _, user := range r.users {
 		users = append(users, user)

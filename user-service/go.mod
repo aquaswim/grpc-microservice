@@ -9,6 +9,7 @@ require (
 	github.com/golobby/container/v3 v3.3.2
 	github.com/google/uuid v1.6.0
 	github.com/jackc/pgx/v5 v5.9.0
+	github.com/joomcode/errorx v1.2.0
 	github.com/rs/zerolog v1.34.0
 	golang.org/x/crypto v0.49.0
 	google.golang.org/grpc v1.79.3

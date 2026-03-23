@@ -3,6 +3,7 @@ package auth
 import (
 	"context"
 	"fmt"
+	appError "gaman-microservice/user-service/internal/domain/app_error"
 	"gaman-microservice/user-service/internal/domain/entity"
 	"gaman-microservice/user-service/internal/port/out"
 	"time"
@@ -24,7 +25,7 @@ func NewPasetoManager(secret string, expiryDuration time.Duration) (out.TokenMan
 
 	key, err := paseto.V4SymmetricKeyFromBytes([]byte(fmt.Sprintf("%-32s", secret)[:32]))
 	if err != nil {
-		return nil, fmt.Errorf("invalid paseto secret: %w", err)
+		return nil, appError.ErrInternal.Wrap(err, "failed at generate SymmetricKeyFromBytes")
 	}
 
 	return &pasetoManager{
@@ -51,17 +52,17 @@ func (p *pasetoManager) Validate(_ context.Context, tokenStr string) (*entity.To
 	parser := paseto.NewParser()
 	token, err := parser.ParseV4Local(p.symmetricKey, tokenStr, nil)
 	if err != nil {
-		return nil, fmt.Errorf("invalid token: %w", err)
+		return nil, appError.ErrUnauthorized.Wrap(err, "invalid token")
 	}
 
 	id, err := token.GetString("id")
 	if err != nil {
-		return nil, fmt.Errorf("token missing id claim: %w", err)
+		return nil, appError.ErrUnauthorized.Wrap(err, "token missing id claim")
 	}
 
 	username, err := token.GetString("username")
 	if err != nil {
-		return nil, fmt.Errorf("token missing username claim: %w", err)
+		return nil, appError.ErrUnauthorized.Wrap(err, "token missing username claim")
 	}
 
 	return &entity.TokenData{

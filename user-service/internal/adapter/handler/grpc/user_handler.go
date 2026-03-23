@@ -2,9 +2,9 @@ package grpc
 
 import (
 	"context"
-	"errors"
 	commonv1 "gaman-microservice/user-service/gen/common/v1"
 	userv1 "gaman-microservice/user-service/gen/user/v1"
+	appError "gaman-microservice/user-service/internal/domain/app_error"
 	"gaman-microservice/user-service/internal/domain/entity"
 	"gaman-microservice/user-service/internal/port/in"
 	"strings"
@@ -49,7 +49,7 @@ func (h *UserHandler) ValidateToken(ctx context.Context, request *userv1.Validat
 
 	// check if token still empty
 	if token == "" {
-		return nil, errors.New("token is empty")
+		return nil, appError.ErrValidation.New("token is empty")
 	}
 
 	tokenData, err := h.userUseCase.ValidateToken(ctx, token)

@@ -2,8 +2,8 @@ package usecase
 
 import (
 	"context"
-	"errors"
 	"fmt"
+	appError "gaman-microservice/user-service/internal/domain/app_error"
 	"gaman-microservice/user-service/internal/domain/entity"
 	"gaman-microservice/user-service/internal/port/in"
 	"gaman-microservice/user-service/internal/port/out"
@@ -24,11 +24,11 @@ func NewUserUseCase(userRepo out.UserRepository, tokenManager out.TokenManager) 
 func (u *userUseCase) Login(ctx context.Context, username, password string) (*entity.User, *entity.TokenWithExpiry, error) {
 	user, err := u.userRepo.FindByUsername(ctx, username)
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, appError.ErrUnauthorized.Wrap(err, "invalid credential")
 	}
 
 	if err := user.ValidatePassword(password); err != nil {
-		return nil, nil, errors.New("invalid credentials")
+		return nil, nil, appError.ErrUnauthorized.New("invalid credential")
 	}
 
 	token, expTime, err := u.tokenManager.Generate(ctx, &entity.TokenData{
