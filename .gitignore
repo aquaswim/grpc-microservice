@@ -2,3 +2,4 @@
 .idea
 .devbox
 .env
+.DS_Store
