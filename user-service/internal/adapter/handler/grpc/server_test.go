@@ -13,7 +13,6 @@ func TestRecoveryMiddleware(t *testing.T) {
 	// Define a handler that panics
 	unaryHandler := func(ctx context.Context, req any) (any, error) {
 		panic("test panic")
-		return nil, nil
 	}
 
 	// Create a dummy UnaryServerInfo
