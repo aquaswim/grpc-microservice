@@ -1,4 +1,6 @@
 package constant
 
-const CtxKeyRequestID = "__ctx_reqid"
+type ctxKey string
+
+const CtxKeyRequestID ctxKey = "__ctx_reqid"
 const MetadataKeyRequestID = "x-request-id"
