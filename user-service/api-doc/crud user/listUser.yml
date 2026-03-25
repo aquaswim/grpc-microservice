@@ -5,7 +5,7 @@ info:
 
 grpc:
   url: "{{serverUrl}}"
-  method: /user.v1.UserService/ListUsers
+  method: /user.v1.ManageService/ListUsers
   methodType: unary
   message: |-
     {

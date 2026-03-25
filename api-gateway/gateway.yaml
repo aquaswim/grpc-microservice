@@ -3,8 +3,8 @@ config_version: 3
 
 http:
   rules:
-    - selector: user.v1.UserService.Login
+    - selector: user.v1.AuthService.Login
       post: /v1/auth/login
       body: "*"
-    - selector: user.v1.UserService.GetMyProfile
+    - selector: user.v1.AuthService.GetMyProfile
       get: /v1/auth/profile

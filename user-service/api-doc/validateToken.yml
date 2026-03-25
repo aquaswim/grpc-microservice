@@ -5,7 +5,7 @@ info:
 
 grpc:
   url: "{{serverUrl}}"
-  method: /user.v1.UserService/ValidateToken
+  method: /user.v1.AuthService/ValidateToken
   methodType: unary
   metadata:
     - name: Authorization

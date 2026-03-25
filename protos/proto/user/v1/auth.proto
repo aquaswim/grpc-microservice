@@ -1,0 +1,39 @@
+syntax = "proto3";
+
+package user.v1;
+
+import "user/v1/user.proto";
+
+option go_package = "user/v1;userv1";
+
+service AuthService {
+  rpc Login(LoginRequest) returns (LoginResponse);
+  rpc ValidateToken(ValidateTokenRequest) returns (ValidateTokenResponse);
+  rpc GetMyProfile(GetMyProfileRequest) returns (GetMyProfileResponse);
+}
+
+message LoginRequest {
+  string username = 1;
+  string password = 2;
+}
+
+message LoginResponse {
+  string token = 1;
+  string expires_at = 2;
+}
+
+message GetMyProfileRequest {}
+
+message GetMyProfileResponse {
+  User user = 1;
+}
+
+message ValidateTokenRequest {
+  optional string token = 1;
+}
+
+message ValidateTokenResponse {
+  string token = 1;
+  string id = 2;
+  string username = 3;
+}

@@ -5,7 +5,7 @@ info:
 
 grpc:
   url: "{{serverUrl}}"
-  method: /user.v1.UserService/DeleteUser
+  method: /user.v1.ManageService/DeleteUser
   methodType: unary
   message: |-
     {

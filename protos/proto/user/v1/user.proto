@@ -2,97 +2,10 @@ syntax = "proto3";
 
 package user.v1;
 
-import "common/v1/pagination.proto";
-
 option go_package = "user/v1;userv1";
-
-service UserService {
-  // Auth
-  rpc Login(LoginRequest) returns (LoginResponse);
-  rpc ValidateToken(ValidateTokenRequest) returns (ValidateTokenResponse);
-  rpc GetMyProfile(GetMyProfileRequest) returns (GetMyProfileResponse);
-
-  // CRUD User Module
-  rpc CreateUser(CreateUserRequest) returns (CreateUserResponse);
-  rpc GetUser(GetUserRequest) returns (GetUserResponse);
-  rpc UpdateUser(UpdateUserRequest) returns (UpdateUserResponse);
-  rpc DeleteUser(DeleteUserRequest) returns (DeleteUserResponse);
-  rpc ListUsers(ListUsersRequest) returns (ListUsersResponse);
-}
-
-message LoginRequest {
-  string username = 1;
-  string password = 2;
-}
-
-message LoginResponse {
-  string token = 1;
-  string expires_at = 2;
-}
-
-message GetMyProfileRequest {}
-
-message GetMyProfileResponse {
-  User user = 1;
-}
 
 message User {
   string id = 1;
   string username = 2;
   string email = 3;
-}
-
-message CreateUserRequest {
-  string username = 1;
-  string email = 2;
-  string password = 3;
-}
-
-message CreateUserResponse {
-  User user = 1;
-}
-
-message GetUserRequest {
-  string id = 1;
-}
-
-message GetUserResponse {
-  User user = 1;
-}
-
-message UpdateUserRequest {
-  string id = 1;
-  optional string username = 2;
-  optional string email = 3;
-}
-
-message UpdateUserResponse {
-  User user = 1;
-}
-
-message DeleteUserRequest {
-  string id = 1;
-}
-
-message DeleteUserResponse {
-  bool success = 1;
-}
-
-message ListUsersRequest {
-  common.v1.PaginationRequest pagination = 1;
-}
-
-message ListUsersResponse {
-  repeated User users = 1;
-  common.v1.PaginationResponse pagination = 2;
-}
-
-message ValidateTokenRequest {
-  optional string token = 1;
-}
-
-message ValidateTokenResponse {
-  string token = 1;
-  string id = 2;
-  string username = 3;
 }

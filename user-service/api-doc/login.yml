@@ -5,7 +5,7 @@ info:
 
 grpc:
   url: "{{serverUrl}}"
-  method: /user.v1.UserService/Login
+  method: /user.v1.AuthService/Login
   methodType: unary
   message: |-
     {

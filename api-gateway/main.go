@@ -40,7 +40,7 @@ func main() {
 		grpc.WithChainUnaryInterceptor(unary.GatewayInterceptor()...),
 		grpc.WithChainStreamInterceptor(stream.GatewayInterceptor()...),
 	}
-	err = userv1.RegisterUserServiceHandlerFromEndpoint(ctx, mux, cfg.UserSvcAddr, opts)
+	err = userv1.RegisterAuthServiceHandlerFromEndpoint(ctx, mux, cfg.UserSvcAddr, opts)
 	if err != nil {
 		log.Fatal().Err(err).Msg("failed to register gateway")
 	}

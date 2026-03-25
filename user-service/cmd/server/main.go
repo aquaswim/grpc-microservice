@@ -11,22 +11,24 @@ import (
 	"google.golang.org/grpc/reflection"
 )
 
+type AppDep struct {
+	Cfg               *config.Config              `container:"type"`
+	UserAuthHandler   *usergrpc.UserAuthHandler   `container:"type"`
+	UserManageHandler *usergrpc.UserManageHandler `container:"type"`
+}
+
 func main() {
 	// Initialize Container
 	c := container.Init()
 
-	var cfg *config.Config
-	if err := c.Resolve(&cfg); err != nil {
-		log.Fatal().Err(err).Msg("failed to resolve config")
-	}
-
-	var userHandler *usergrpc.UserHandler
-	if err := c.Resolve(&userHandler); err != nil {
-		log.Fatal().Err(err).Msg("failed to resolve user handler")
+	appDep := AppDep{}
+	err := c.Fill(&appDep)
+	if err != nil {
+		log.Fatal().Err(err).Msg("failed to fill app dependencies")
 	}
 
 	// Create TCP listener
-	lis, err := net.Listen("tcp", cfg.TcpListenerUrl)
+	lis, err := net.Listen("tcp", appDep.Cfg.TcpListenerUrl)
 	if err != nil {
 		log.Fatal().Err(err).Msg("failed to listen")
 	}
@@ -34,13 +36,14 @@ func main() {
 	// Create gRPC server
 	s := usergrpc.NewServer()
 
-	// Register UserService
-	userv1.RegisterUserServiceServer(s, userHandler)
+	// Register Services
+	userv1.RegisterManageServiceServer(s, appDep.UserManageHandler)
+	userv1.RegisterAuthServiceServer(s, appDep.UserAuthHandler)
 
 	// Register reflection service on gRPC server
 	reflection.Register(s)
 
-	log.Info().Str("url", cfg.TcpListenerUrl).Msg("User Service is running")
+	log.Info().Str("url", appDep.Cfg.TcpListenerUrl).Msg("User Service is running")
 	if err := s.Serve(lis); err != nil {
 		log.Fatal().Err(err).Msg("failed to serve")
 	}

@@ -45,10 +45,12 @@ func Init() container.Container {
 	container.MustSingleton(c, postgres.NewUserRepository)
 
 	// UseCase
-	container.MustSingleton(c, usecase.NewUserUseCase)
+	container.MustSingleton(c, usecase.NewUserAuthUseCase)
+	container.MustSingleton(c, usecase.NewManageUserUseCase)
 
 	// Handler
-	container.MustSingleton(c, usergrpc.NewUserHandler)
+	container.MustSingleton(c, usergrpc.NewUserManageHandler)
+	container.MustSingleton(c, usergrpc.NewUserAuthHandler)
 
 	return c
 }
