@@ -1,0 +1,27 @@
+info:
+  name: update user
+  type: http
+  seq: 4
+
+http:
+  method: PUT
+  url: "{{baseUrl}}/v1/users/:id"
+  params:
+    - name: id
+      value: 019d295b-2e2e-746f-8996-99aaff17b3fd
+      type: path
+  body:
+    type: json
+    data: |-
+      {
+        "username": "Amparo2026",
+        "email": "{{$randomEmail}}",
+        "password": "password123"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

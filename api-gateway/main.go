@@ -72,7 +72,11 @@ func main() {
 	}
 	err = userv1.RegisterAuthServiceHandlerFromEndpoint(ctx, mux, cfg.UserSvcAddr, opts)
 	if err != nil {
-		log.Fatal().Err(err).Msg("failed to register gateway")
+		log.Fatal().Err(err).Msg("failed to register service user/auth to gateway")
+	}
+	err = userv1.RegisterManageServiceHandlerFromEndpoint(ctx, mux, cfg.UserSvcAddr, opts)
+	if err != nil {
+		log.Fatal().Err(err).Msg("failed to register service user/manage to gateway")
 	}
 
 	// start server

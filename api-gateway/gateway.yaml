@@ -8,3 +8,15 @@ http:
       body: "*"
     - selector: user.v1.AuthService.GetMyProfile
       get: /v1/auth/profile
+    - selector: user.v1.ManageService.CreateUser
+      post: /v1/users
+      body: "*"
+    - selector: user.v1.ManageService.ListUsers
+      get: /v1/users
+    - selector: user.v1.ManageService.GetUser
+      get: /v1/users/{id}
+    - selector: user.v1.ManageService.UpdateUser
+      put: /v1/users/{id}
+      body: "*"
+    - selector: user.v1.ManageService.DeleteUser
+      delete: /v1/users/{id}

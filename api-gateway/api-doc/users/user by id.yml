@@ -1,11 +1,15 @@
 info:
-  name: profile
+  name: user by id
   type: http
   seq: 2
 
 http:
   method: GET
-  url: "{{baseUrl}}/v1/auth/profile"
+  url: "{{baseUrl}}/v1/users/:id"
+  params:
+    - name: id
+      value: 019d0a60-dc74-7342-8d5e-a1688daf555e
+      type: path
   body:
     type: json
     data: ""
