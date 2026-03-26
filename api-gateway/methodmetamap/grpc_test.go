@@ -6,7 +6,10 @@ import (
 )
 
 func TestGetMethodMetaFromFileDesc(t *testing.T) {
-	mm := GetMethodMetaFromFileDesc(userv1.File_user_v1_auth_proto)
+	mm, err := GetMethodMetaFromFileDesc(userv1.File_user_v1_auth_proto)
+	if err != nil {
+		t.Fatalf("failed to get method meta: %v", err)
+	}
 
 	t.Logf("methodmeta: %s", mm)
 }

@@ -22,7 +22,7 @@ func (m MethodMetaMap) Get(key string) (*MethodMeta, bool) {
 func (m MethodMetaMap) String() string {
 	sb := strings.Builder{}
 	for key, value := range m {
-		sb.WriteString(fmt.Sprintf("%s: {%+v}\n", key, value))
+		_, _ = fmt.Fprintf(&sb, "%s: {%+v}\n", key, value)
 	}
 	return sb.String()
 }

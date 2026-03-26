@@ -2,13 +2,12 @@ package grpc
 
 import (
 	"context"
+	commonv1 "gaman-microservice/user-service/gen/common/v1"
 	userv1 "gaman-microservice/user-service/gen/user/v1"
 	appError "gaman-microservice/user-service/internal/domain/app_error"
 	"gaman-microservice/user-service/internal/port/in"
 	"strings"
 	"time"
-
-	"google.golang.org/grpc/metadata"
 )
 
 type UserAuthHandler struct {
@@ -38,19 +37,14 @@ func (h *UserAuthHandler) Login(ctx context.Context, req *userv1.LoginRequest) (
 
 func (h *UserAuthHandler) ValidateToken(ctx context.Context, request *userv1.ValidateTokenRequest) (*userv1.ValidateTokenResponse, error) {
 	token := request.GetToken()
-	if token == "" {
-		// get token from metadata
-		if md, ok := metadata.FromIncomingContext(ctx); ok {
-			if authToken, ok := md["authorization"]; ok {
-				token = strings.TrimPrefix(authToken[0], "Bearer ")
-			}
-		}
-	}
 
 	// check if token still empty
 	if token == "" {
 		return nil, appError.ErrValidation.New("token is empty")
 	}
+
+	// strips the "Bearer " prefix
+	token = strings.TrimPrefix(token, "Bearer ")
 
 	tokenData, err := h.userAuthUseCase.ValidateToken(ctx, token)
 	if err != nil {
@@ -58,19 +52,19 @@ func (h *UserAuthHandler) ValidateToken(ctx context.Context, request *userv1.Val
 	}
 
 	return &userv1.ValidateTokenResponse{
-		Token:    token,
-		Id:       tokenData.Id,
-		Username: tokenData.Username,
+		Token: token,
+		Data:  &commonv1.TokenPayload{Id: tokenData.Id, Username: tokenData.Username},
 	}, nil
 }
 
 func (h *UserAuthHandler) GetMyProfile(ctx context.Context, _ *userv1.GetMyProfileRequest) (*userv1.GetMyProfileResponse, error) {
-	validateTokenResponse, err := h.ValidateToken(ctx, &userv1.ValidateTokenRequest{})
+	// get userId from context
+	uCtx, err := getAuthDataFromCtx(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	userData, err := h.manageUserUseCase.GetUser(ctx, validateTokenResponse.Id)
+	userData, err := h.manageUserUseCase.GetUser(ctx, uCtx.GetId())
 	if err != nil {
 		return nil, err
 	}

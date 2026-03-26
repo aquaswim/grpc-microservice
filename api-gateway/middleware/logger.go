@@ -46,10 +46,6 @@ func LoggerMiddleware() runtime.Middleware {
 				Logger()
 			r = r.WithContext(l.WithContext(r.Context()))
 
-			l.Info().
-				Any("pathParams", pathParams).
-				Msgf("[http request] %s %s - %s", r.Method, r.URL.Path, r.UserAgent())
-
 			sw := &statusCapturingWriter{ResponseWriter: w}
 
 			next(sw, r, pathParams)
@@ -58,8 +54,10 @@ func LoggerMiddleware() runtime.Middleware {
 			if sw.IsError() {
 				level = zerolog.ErrorLevel
 			}
-			l.WithLevel(level).
-				Msgf("[http response] %d %s", sw.Status(), time.Since(now))
+			// get from context
+			zerolog.Ctx(r.Context()).
+				WithLevel(level).
+				Msgf("[http] %s %s - %d %s", r.Method, r.URL.Path, sw.Status(), time.Since(now))
 		}
 	}
 }

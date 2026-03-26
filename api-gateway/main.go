@@ -6,6 +6,7 @@ import (
 	userv1 "gaman-microservice/api-gateway/gen/user/v1"
 	"gaman-microservice/api-gateway/interceptor/stream"
 	"gaman-microservice/api-gateway/interceptor/unary"
+	"gaman-microservice/api-gateway/methodmetamap"
 	"gaman-microservice/api-gateway/middleware"
 	"net/http"
 	"os"
@@ -32,12 +33,41 @@ func main() {
 		log.Warn().Msgf("Pretty logging is enabled, this must only be used in local!")
 	}
 
+	// method meta map
+	methodMap, err := methodmetamap.GetMethodMetaFromFileDesc(
+		userv1.File_user_v1_auth_proto,
+		userv1.File_user_v1_manage_proto,
+	)
+	if err != nil {
+		log.Fatal().Err(err).Msg("failed to load method meta map")
+	}
+
+	// auth client
+	authClientConn, err := grpc.NewClient(
+		cfg.UserSvcAddr,
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+	)
+	if err != nil {
+		log.Fatal().Err(err).Msg("failed to create auth client")
+	}
+	defer func() {
+		err := authClientConn.Close()
+		if err != nil {
+			log.Err(err).Msg("failed to close auth client connection")
+		}
+	}()
+	authSvcClient := userv1.NewAuthServiceClient(authClientConn)
+
+	if authSvcClient == nil {
+		log.Fatal().Msg("failed to create auth service client")
+	}
+
 	mux := runtime.NewServeMux(
 		runtime.WithMiddlewares(middleware.GatewayMiddleware()...),
 	)
 	opts := []grpc.DialOption{
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
-		grpc.WithChainUnaryInterceptor(unary.GatewayInterceptor()...),
+		grpc.WithChainUnaryInterceptor(unary.GatewayInterceptor(methodMap, authSvcClient)...),
 		grpc.WithChainStreamInterceptor(stream.GatewayInterceptor()...),
 	}
 	err = userv1.RegisterAuthServiceHandlerFromEndpoint(ctx, mux, cfg.UserSvcAddr, opts)
