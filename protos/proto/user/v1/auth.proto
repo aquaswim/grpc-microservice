@@ -2,6 +2,7 @@ syntax = "proto3";
 
 package user.v1;
 
+import "common/v1/method_description.proto";
 import "user/v1/user.proto";
 
 option go_package = "user/v1;userv1";
@@ -9,7 +10,9 @@ option go_package = "user/v1;userv1";
 service AuthService {
   rpc Login(LoginRequest) returns (LoginResponse);
   rpc ValidateToken(ValidateTokenRequest) returns (ValidateTokenResponse);
-  rpc GetMyProfile(GetMyProfileRequest) returns (GetMyProfileResponse);
+  rpc GetMyProfile(GetMyProfileRequest) returns (GetMyProfileResponse) {
+    option (common.v1.need_auth) = true;
+  }
 }
 
 message LoginRequest {

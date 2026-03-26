@@ -2,17 +2,28 @@ syntax = "proto3";
 
 package user.v1;
 
+import "common/v1/method_description.proto";
 import "common/v1/pagination.proto";
 import "user/v1/user.proto";
 
 option go_package = "user/v1;userv1";
 
 service ManageService {
-  rpc CreateUser(CreateUserRequest) returns (CreateUserResponse);
-  rpc GetUser(GetUserRequest) returns (GetUserResponse);
-  rpc UpdateUser(UpdateUserRequest) returns (UpdateUserResponse);
-  rpc DeleteUser(DeleteUserRequest) returns (DeleteUserResponse);
-  rpc ListUsers(ListUsersRequest) returns (ListUsersResponse);
+  rpc CreateUser(CreateUserRequest) returns (CreateUserResponse) {
+    option (common.v1.need_auth) = true;
+  }
+  rpc GetUser(GetUserRequest) returns (GetUserResponse) {
+    option (common.v1.need_auth) = true;
+  }
+  rpc UpdateUser(UpdateUserRequest) returns (UpdateUserResponse) {
+    option (common.v1.need_auth) = true;
+  }
+  rpc DeleteUser(DeleteUserRequest) returns (DeleteUserResponse) {
+    option (common.v1.need_auth) = true;
+  }
+  rpc ListUsers(ListUsersRequest) returns (ListUsersResponse) {
+    option (common.v1.need_auth) = true;
+  }
 }
 
 message CreateUserRequest {

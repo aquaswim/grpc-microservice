@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package common.v1;
+
+import "google/protobuf/descriptor.proto";
+
+option go_package = "common/v1;commonv1";
+
+extend google.protobuf.MethodOptions {
+  bool need_auth = 50001;
+}
