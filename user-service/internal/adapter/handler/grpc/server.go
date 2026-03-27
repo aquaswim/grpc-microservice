@@ -3,6 +3,7 @@ package grpc
 import (
 	"context"
 	"errors"
+	commonv1 "gaman-microservice/user-service/gen/common/v1"
 	appError "gaman-microservice/user-service/internal/domain/app_error"
 	"runtime/debug"
 	"time"
@@ -140,9 +141,17 @@ func getRequestIdFromContext(ctx context.Context) string {
 }
 
 func registerLogger(ctx context.Context, methodName string) context.Context {
+	userCtx, err := getAuthDataFromCtx(ctx)
+	if err != nil {
+		// user not logged in
+		userCtx = &commonv1.TokenPayload{
+			Id: "guest",
+		}
+	}
 	l := log.With().
 		Str("reqId", getRequestIdFromContext(ctx)).
 		Str("method", methodName).
+		Str("user_id", userCtx.GetId()).
 		Logger()
 
 	return l.WithContext(ctx)

@@ -8,13 +8,13 @@ http:
   url: "{{baseUrl}}/v1/users/:id"
   params:
     - name: id
-      value: 019d295b-2e2e-746f-8996-99aaff17b3fd
+      value: 019d0a60-e460-7c64-bc97-a42cb6b7f78f
       type: path
   body:
     type: json
     data: |-
       {
-        "username": "Amparo2026",
+        "username": "some-user-eidt",
         "email": "{{$randomEmail}}",
         "password": "password123"
       }

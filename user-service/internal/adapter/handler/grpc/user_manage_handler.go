@@ -4,8 +4,11 @@ import (
 	"context"
 	commonv1 "gaman-microservice/user-service/gen/common/v1"
 	userv1 "gaman-microservice/user-service/gen/user/v1"
+	appError "gaman-microservice/user-service/internal/domain/app_error"
 	"gaman-microservice/user-service/internal/domain/entity"
 	"gaman-microservice/user-service/internal/port/in"
+
+	"github.com/rs/zerolog"
 )
 
 type UserManageHandler struct {
@@ -57,13 +60,25 @@ func (h *UserManageHandler) GetUser(ctx context.Context, req *userv1.GetUserRequ
 }
 
 func (h *UserManageHandler) UpdateUser(ctx context.Context, req *userv1.UpdateUserRequest) (*userv1.UpdateUserResponse, error) {
-	user := &entity.User{
-		ID:       req.GetId(),
-		Username: req.GetUsername(),
-		Email:    req.GetEmail(),
+	l := zerolog.Ctx(ctx)
+
+	userData, err := h.manageUserUseCase.GetUser(ctx, req.GetId())
+	if err != nil {
+		return nil, err
 	}
 
-	updatedUser, err := h.manageUserUseCase.UpdateUser(ctx, user)
+	userData.Username = req.GetUsername()
+	userData.Email = req.GetEmail()
+	if req.GetPassword() != "" {
+		l.Info().Msg("updating user password")
+		err = userData.SetPassword(req.GetPassword())
+		if err != nil {
+			l.Error().Err(err).Msg("setPassword (encrypt) return error")
+			return nil, appError.ErrInternal.Wrap(err, "error setting password")
+		}
+	}
+
+	updatedUser, err := h.manageUserUseCase.UpdateUser(ctx, userData)
 	if err != nil {
 		return nil, err
 	}

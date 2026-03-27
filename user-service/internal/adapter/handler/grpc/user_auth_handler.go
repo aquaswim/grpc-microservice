@@ -73,3 +73,36 @@ func (h *UserAuthHandler) GetMyProfile(ctx context.Context, _ *userv1.GetMyProfi
 		User: convertUserEntityToGrpcUser(userData),
 	}, nil
 }
+
+func (h *UserAuthHandler) UpdateMyProfile(ctx context.Context, req *userv1.UpdateMyProfileRequest) (*userv1.UpdateMyProfileResponse, error) {
+	uCtx, err := getAuthDataFromCtx(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	userData, err := h.manageUserUseCase.GetUser(ctx, uCtx.GetId())
+	if err != nil {
+		return nil, err
+	}
+	if req.GetEmail() != "" {
+		userData.Email = req.GetEmail()
+	}
+	if req.GetUsername() != "" {
+		userData.Username = req.GetUsername()
+	}
+	if req.GetPassword() != "" {
+		err = userData.SetPassword(req.GetPassword())
+		if err != nil {
+			return nil, appError.ErrInternal.Wrap(err, "error setting password")
+		}
+	}
+
+	_, err = h.manageUserUseCase.UpdateUser(ctx, userData)
+	if err != nil {
+		return nil, err
+	}
+
+	return &userv1.UpdateMyProfileResponse{
+		Success: true,
+	}, nil
+}

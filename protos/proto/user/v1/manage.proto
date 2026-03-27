@@ -46,8 +46,9 @@ message GetUserResponse {
 
 message UpdateUserRequest {
   string id = 1;
-  optional string username = 2;
-  optional string email = 3;
+  string username = 2;
+  string email = 3;
+  optional string password = 4;
 }
 
 message UpdateUserResponse {

@@ -14,6 +14,9 @@ service AuthService {
   rpc GetMyProfile(GetMyProfileRequest) returns (GetMyProfileResponse) {
     option (common.v1.need_auth) = true;
   }
+  rpc UpdateMyProfile(UpdateMyProfileRequest) returns (UpdateMyProfileResponse) {
+    option (common.v1.need_auth) = true;
+  }
 }
 
 message LoginRequest {
@@ -39,4 +42,14 @@ message ValidateTokenRequest {
 message ValidateTokenResponse {
   string token = 1;
   common.v1.TokenPayload data = 2;
+}
+
+message UpdateMyProfileRequest {
+  optional string username = 1;
+  optional string password = 2;
+  optional string email = 3;
+}
+
+message UpdateMyProfileResponse {
+  bool success = 1;
 }

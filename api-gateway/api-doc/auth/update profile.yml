@@ -1,0 +1,21 @@
+info:
+  name: update profile
+  type: http
+  seq: 3
+
+http:
+  method: PATCH
+  url: "{{baseUrl}}/v1/auth/profile"
+  body:
+    type: json
+    data: |-
+      {
+        "email": "test@example.com"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

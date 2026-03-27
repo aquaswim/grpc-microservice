@@ -8,6 +8,9 @@ http:
       body: "*"
     - selector: user.v1.AuthService.GetMyProfile
       get: /v1/auth/profile
+    - selector: user.v1.AuthService.UpdateMyProfile
+      patch: /v1/auth/profile
+      body: "*"
     - selector: user.v1.ManageService.CreateUser
       post: /v1/users
       body: "*"
