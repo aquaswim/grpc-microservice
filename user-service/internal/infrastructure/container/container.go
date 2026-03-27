@@ -38,7 +38,7 @@ func Init() container.Container {
 
 	// Token Manager
 	container.MustSingleton(c, func(cfg *config.Config) (out.TokenManager, error) {
-		return auth.NewPasetoManager(cfg.TokenSecret, cfg.GetTokenExpiryDuration())
+		return auth.NewPasetoManager(cfg.TokenPrivateKey, cfg.TokenPublicKey, cfg.GetTokenExpiryDuration())
 	})
 
 	// Repository

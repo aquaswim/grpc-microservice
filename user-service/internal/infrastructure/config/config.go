@@ -11,7 +11,8 @@ type Config struct {
 	PrettyLog          bool   `env:"PRETTY_LOG" envDefault:"false"`
 	TcpListenerUrl     string `env:"TCP_LISTENER_URL" envDefault:":50051"`
 	DatabaseUrl        string `env:"DATABASE_URL,required"`
-	TokenSecret        string `env:"TOKEN_SECRET,required"`
+	TokenPrivateKey    string `env:"TOKEN_PRIVATE_KEY,required"`
+	TokenPublicKey     string `env:"TOKEN_PUBLIC_KEY"`
 	TokenExpiryMinutes int    `env:"TOKEN_EXPIRY_MINUTES" envDefault:"60"`
 }
 
