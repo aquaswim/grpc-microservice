@@ -8,6 +8,8 @@ import (
 	"runtime/debug"
 	"time"
 
+	"buf.build/go/protovalidate"
+	protovalidateInterceptor "github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/protovalidate"
 	"github.com/joomcode/errorx"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
@@ -200,17 +202,24 @@ func UnaryErrorMappingInterceptor(ctx context.Context, req any, _ *grpc.UnarySer
 }
 
 func NewServer() *grpc.Server {
+	validator, err := protovalidate.New()
+	if err != nil {
+		log.Fatal().Err(err).Msg("Failed to create protovalidate validator")
+	}
+
 	return grpc.NewServer(
 		grpc.ChainUnaryInterceptor(
 			UnaryRequestIdInterceptor,
 			UnaryRecoveryInterceptor,
 			UnaryLoggingInterceptor,
+			protovalidateInterceptor.UnaryServerInterceptor(validator),
 			UnaryErrorMappingInterceptor,
 		),
 		grpc.ChainStreamInterceptor(
 			StreamRequestIdInterceptor,
 			StreamRecoveryInterceptor,
 			StreamLoggingInterceptor,
+			protovalidateInterceptor.StreamServerInterceptor(validator),
 			StreamErrorMappingInterceptor,
 		),
 	)

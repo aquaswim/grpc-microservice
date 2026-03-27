@@ -2,10 +2,15 @@ syntax = "proto3";
 
 package common.v1;
 
+import "buf/validate/validate.proto";
+
 option go_package = "common/v1;commonv1";
 
 message PaginationRequest {
-  int32 page_size = 1;
+  int32 page_size = 1 [(buf.validate.field).int32 = {
+    gte: 0
+    lte: 1000
+  }];
   string page_token = 2;
 }
 
