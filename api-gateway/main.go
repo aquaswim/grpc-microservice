@@ -6,6 +6,7 @@ import (
 	userv1 "gaman-microservice/api-gateway/gen/user/v1"
 	"gaman-microservice/api-gateway/interceptor/stream"
 	"gaman-microservice/api-gateway/interceptor/unary"
+	grpcInterceptorUtil "gaman-microservice/api-gateway/interceptor/utils"
 	"gaman-microservice/api-gateway/methodmetamap"
 	"gaman-microservice/api-gateway/middleware"
 	"net/http"
@@ -62,13 +63,15 @@ func main() {
 		log.Fatal().Msg("failed to create auth service client")
 	}
 
+	mmProcessor := grpcInterceptorUtil.NewMethodMetaProcessor(methodMap, authSvcClient)
+
 	mux := runtime.NewServeMux(
 		runtime.WithMiddlewares(middleware.GatewayMiddleware()...),
 	)
 	opts := []grpc.DialOption{
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
-		grpc.WithChainUnaryInterceptor(unary.GatewayInterceptor(methodMap, authSvcClient)...),
-		grpc.WithChainStreamInterceptor(stream.GatewayInterceptor()...),
+		grpc.WithChainUnaryInterceptor(unary.GatewayInterceptor(mmProcessor)...),
+		grpc.WithChainStreamInterceptor(stream.GatewayInterceptor(mmProcessor)...),
 	}
 	err = userv1.RegisterAuthServiceHandlerFromEndpoint(ctx, mux, cfg.UserSvcAddr, opts)
 	if err != nil {

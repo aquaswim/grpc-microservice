@@ -3,20 +3,17 @@ package unary
 import (
 	"context"
 	"gaman-microservice/api-gateway/constant"
-	userv1 "gaman-microservice/api-gateway/gen/user/v1"
-	"gaman-microservice/api-gateway/interceptor/utils"
-	"gaman-microservice/api-gateway/methodmetamap"
+	grpcInterceptorUtil "gaman-microservice/api-gateway/interceptor/utils"
 
 	"github.com/rs/zerolog"
-	"github.com/rs/zerolog/log"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
 )
 
-func GatewayInterceptor(methodMap methodmetamap.MethodMetaMap, authClient userv1.AuthServiceClient) []grpc.UnaryClientInterceptor {
+func GatewayInterceptor(methodMetaProcessor *grpcInterceptorUtil.MethodMetaProcessor) []grpc.UnaryClientInterceptor {
 	return []grpc.UnaryClientInterceptor{
 		RequestIdInterceptor(),
-		AuthInterceptor(methodMap, authClient),
+		MethodMetaProcessorInterceptor(methodMetaProcessor),
 		LogInterceptor(),
 	}
 }
@@ -47,31 +44,12 @@ func RequestIdInterceptor() grpc.UnaryClientInterceptor {
 	}
 }
 
-func AuthInterceptor(methodMap methodmetamap.MethodMetaMap, authClient userv1.AuthServiceClient) grpc.UnaryClientInterceptor {
+func MethodMetaProcessorInterceptor(processor *grpcInterceptorUtil.MethodMetaProcessor) grpc.UnaryClientInterceptor {
 	return func(ctx context.Context, method string, req, reply any, cc *grpc.ClientConn, invoker grpc.UnaryInvoker, opts ...grpc.CallOption) error {
-		l := log.Ctx(ctx)
-		if methodMeta, ok := methodMap.Get(method); ok {
-			if methodMeta.NeedAuth {
-				// check for auth
-				tokenData, err := utils.ValidateTokenFromContext(ctx, authClient)
-				if err != nil {
-					return err
-				}
-				l.UpdateContext(func(c zerolog.Context) zerolog.Context {
-					return c.Str("user_id", tokenData.Data.Id)
-				})
-
-				ctx = metadata.AppendToOutgoingContext(ctx,
-					constant.MetadataKeyUserId, tokenData.Data.GetId(),
-					constant.MetadataKeyUsername, tokenData.Data.GetUsername(),
-				)
-			}
-		} else {
-			// method map not found
-			l.Warn().
-				Str("method", method).
-				Msg("method not found in methodMetaMap, gateway maybe not configured properly")
+		newCtx, err := processor.ProcessMethodMeta(ctx, method)
+		if err != nil {
+			return err
 		}
-		return invoker(ctx, method, req, reply, cc, opts...)
+		return invoker(newCtx, method, req, reply, cc, opts...)
 	}
 }
