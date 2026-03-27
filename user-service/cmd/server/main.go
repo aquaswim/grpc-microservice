@@ -12,9 +12,10 @@ import (
 )
 
 type AppDep struct {
-	Cfg               *config.Config              `container:"type"`
-	UserAuthHandler   *usergrpc.UserAuthHandler   `container:"type"`
-	UserManageHandler *usergrpc.UserManageHandler `container:"type"`
+	Cfg                       *config.Config                      `container:"type"`
+	UserAuthHandler           *usergrpc.UserAuthHandler           `container:"type"`
+	UserManageHandler         *usergrpc.UserManageHandler         `container:"type"`
+	UserForgotPasswordHandler *usergrpc.UserForgotPasswordHandler `container:"type"`
 }
 
 func main() {
@@ -39,6 +40,7 @@ func main() {
 	// Register Services
 	userv1.RegisterManageServiceServer(s, appDep.UserManageHandler)
 	userv1.RegisterAuthServiceServer(s, appDep.UserAuthHandler)
+	userv1.RegisterForgotPasswordServiceServer(s, appDep.UserForgotPasswordHandler)
 
 	// Register reflection service on gRPC server
 	reflection.Register(s)

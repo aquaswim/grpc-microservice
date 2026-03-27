@@ -1,6 +1,8 @@
 package entity
 
 import (
+	"time"
+
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -33,4 +35,16 @@ func (u *User) GetPassword() string {
 
 func (u *User) ValidatePassword(password string) error {
 	return bcrypt.CompareHashAndPassword([]byte(u.Password), []byte(password))
+}
+
+type PasswordResetToken struct {
+	ID        int64
+	UserID    string
+	Token     string
+	ExpiresAt time.Time
+	CreatedAt time.Time
+}
+
+func (p *PasswordResetToken) IsExpired() bool {
+	return time.Now().After(p.ExpiresAt)
 }

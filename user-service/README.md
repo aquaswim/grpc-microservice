@@ -44,6 +44,7 @@ cp .env.example .env
 | `TOKEN_PRIVATE_KEY` | Private key for asymmetric token signing (Required) | - |
 | `TOKEN_PUBLIC_KEY` | Public key for asymmetric token verification (Optional, can be derived from private key if empty) | - |
 | `TOKEN_EXPIRY_MINUTES` | Token expiration time in minutes | `60` |
+| `RESET_TOKEN_EXPIRY_MINUTES` | Password reset token expiration time in minutes | `10` |
 
 ### 4. Run the Application
 

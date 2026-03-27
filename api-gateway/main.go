@@ -81,6 +81,10 @@ func main() {
 	if err != nil {
 		log.Fatal().Err(err).Msg("failed to register service user/manage to gateway")
 	}
+	err = userv1.RegisterForgotPasswordServiceHandlerFromEndpoint(ctx, mux, cfg.UserSvcAddr, opts)
+	if err != nil {
+		log.Fatal().Err(err).Msg("failed to register service user/forgot_password to gateway")
+	}
 
 	// start server
 	log.

@@ -7,11 +7,8 @@ grpc:
   url: "{{serverUrl}}"
   method: /user.v1.AuthService/ValidateToken
   methodType: unary
-  metadata:
-    - name: Authorization
-      value: v4.local.qE88msoJLmjFSTruikyXGr6AV8S-oSnPoT5M9U9sPmR-OjfSamkA5bMxUmUcqjdXCw4rz1TO3ZEzl2KdNjtvjppA5Qtib6l2VrxGaN6fnizSF5EN5XgQvTXnKxo5Jo3g9wgfyntKDoau2KTQ_V3BVFT8mPmrMSCgxUDWLue3UM5k9DHnXoSXyOMq38zRSXzhLUK56_8KT05YkdeR-lmzcZI7nBAyLafmrtjmJcMHHdjSOcJ5eum-cZwC1Wkw64zHXETRDn3D8AxRgftK5MJcTVPXkR7gSdUd9d9CWvf7Ifmnj2VLzEjgj7_ZJag
   message: |-
     {
-      
+      "token": "v4.public.eyJleHAiOiIyMDI2LTAzLTI3VDIzOjAyOjQ4KzA3OjAwIiwiaWF0IjoiMjAyNi0wMy0yN1QyMjowMjo0OCswNzowMCIsImlkIjoiMDE5ZDBhNjAtZGM3NC03MzQyLThkNWUtYTE2ODhkYWY1NTVlIiwibmJmIjoiMjAyNi0wMy0yN1QyMjowMjo0OCswNzowMCIsInVzZXJuYW1lIjoiY3VydHVzLWVkaXQifd6zrWJzDg3dy-Ck4eWct5j-17jM8on_wRmF1d_7B-g_K2qyUPv1rMDCuhOnykK8A1QXpY--ElOKpM5ze7FCZg4"
     }
   auth: inherit

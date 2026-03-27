@@ -29,6 +29,15 @@ func (r *userMemoryRepository) FindByUsername(_ context.Context, username string
 	return nil, appError.ErrNotFound.New("user not found")
 }
 
+func (r *userMemoryRepository) FindByEmail(_ context.Context, email string) (*entity.User, error) {
+	for _, user := range r.users {
+		if user.Email == email {
+			return user, nil
+		}
+	}
+	return nil, appError.ErrNotFound.New("user not found")
+}
+
 func (r *userMemoryRepository) FindByID(_ context.Context, id string) (*entity.User, error) {
 	user, ok := r.users[id]
 	if !ok {

@@ -3,6 +3,7 @@ config_version: 3
 
 http:
   rules:
+    # auth
     - selector: user.v1.AuthService.Login
       post: /v1/auth/login
       body: "*"
@@ -11,6 +12,17 @@ http:
     - selector: user.v1.AuthService.UpdateMyProfile
       patch: /v1/auth/profile
       body: "*"
+    # forgot password
+    - selector: user.v1.ForgotPasswordService.ForgotPassword
+      post: /v1/auth/forgot-password
+      body: "*"
+    - selector: user.v1.ForgotPasswordService.ValidateResetPasswordToken
+      post: /v1/auth/validate-reset-password
+      body: "*"
+    - selector: user.v1.ForgotPasswordService.ResetPasswordWithToken
+      post: /v1/auth/reset-password
+      body: "*"
+    # crud user
     - selector: user.v1.ManageService.CreateUser
       post: /v1/users
       body: "*"

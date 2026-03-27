@@ -45,6 +45,27 @@ func (r *userRepository) FindByUsername(ctx context.Context, username string) (*
 	return user, nil
 }
 
+func (r *userRepository) FindByEmail(ctx context.Context, email string) (*entity.User, error) {
+	query, args, err := r.builder.Select("id", "username", "password", "email").
+		From("users").
+		Where(squirrel.Eq{"email": email}).
+		ToSql()
+	if err != nil {
+		return nil, appError.ErrInternal.WrapWithNoMessage(err)
+	}
+
+	user := &entity.User{}
+	err = r.db.QueryRow(ctx, query, args...).Scan(&user.ID, &user.Username, &user.Password, &user.Email)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, appError.ErrNotFound.Wrap(err, "user not found")
+		}
+		return nil, appError.ErrInternal.WrapWithNoMessage(err)
+	}
+
+	return user, nil
+}
+
 func (r *userRepository) FindByID(ctx context.Context, id string) (*entity.User, error) {
 	query, args, err := r.builder.Select("id", "username", "password", "email").
 		From("users").
