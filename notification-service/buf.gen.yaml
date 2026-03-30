@@ -16,3 +16,4 @@ inputs:
   - directory: ../protos
     paths:
       - ../protos/proto/common
+      - ../protos/proto/event
