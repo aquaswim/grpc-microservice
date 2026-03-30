@@ -19,17 +19,20 @@ type userForgotPasswordUseCase struct {
 	userRepo       out.UserRepository
 	resetTokenRepo out.PasswordResetTokenRepository
 	cfg            *config.Config
+	eventProducer  out.EventProducer
 }
 
 func NewUserForgotPasswordUseCase(
 	userRepo out.UserRepository,
 	resetTokenRepo out.PasswordResetTokenRepository,
 	cfg *config.Config,
+	eventProducer out.EventProducer,
 ) in.UserForgotPasswordUseCase {
 	return &userForgotPasswordUseCase{
 		userRepo:       userRepo,
 		resetTokenRepo: resetTokenRepo,
 		cfg:            cfg,
+		eventProducer:  eventProducer,
 	}
 }
 
@@ -72,11 +75,15 @@ func (u *userForgotPasswordUseCase) ForgotPassword(ctx context.Context, email st
 		return err
 	}
 
-	// Dummy email sending
-	l.Info().
-		Str("email", email).
-		Str("token", tokenString).
-		Msg("Password reset token generated")
+	// forgot password event
+	err = u.eventProducer.ForgotPassword(ctx, &entity.UserForgotPasswordData{
+		User:      user,
+		Token:     resetToken.Token,
+		ExpiredAt: resetToken.ExpiresAt,
+	})
+	if err != nil {
+		return appError.ErrInternal.Wrap(err, "failed to process forgot password event")
+	}
 
 	return nil
 }

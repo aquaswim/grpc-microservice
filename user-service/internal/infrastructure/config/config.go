@@ -15,6 +15,10 @@ type Config struct {
 	TokenPublicKey          string `env:"TOKEN_PUBLIC_KEY"`
 	TokenExpiryMinutes      int    `env:"TOKEN_EXPIRY_MINUTES" envDefault:"60"`
 	ResetTokenExpiryMinutes int    `env:"RESET_TOKEN_EXPIRY_MINUTES" envDefault:"10"`
+	RabbitMQUrl             string `env:"RABBITMQ_URL,required"`
+	RabbitMqExchange        string `env:"RABBITMQ_EXCHANGE,required"`
+
+	UserForgotPasswordTopic string `env:"TOPIC_USER_FORGOT_PASSWORD" envDefault:"user-forgot-password"`
 }
 
 func (c Config) GetTokenExpiryDuration() time.Duration {
