@@ -47,7 +47,10 @@ func (s *subscriber) forgotPasswordHandler(ctx context.Context, msg pubsub.Messa
 		return err
 	}
 	// todo implement this
-	l.Debug().Bytes("data", msg.GetData()).Msg("received forgot password event")
+	l.Debug().
+		Bytes("data", msg.GetData()).
+		Str("token", event.GetResetToken()).
+		Msg("received forgot password event")
 
 	msg.Ack(ctx)
 
