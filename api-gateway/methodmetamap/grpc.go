@@ -24,9 +24,11 @@ func GetMethodMetaFromFileDesc(fds ...protoreflect.FileDescriptor) (MethodMetaMa
 				key := fmt.Sprintf("/%s/%s", svc.FullName(), method.Name())
 
 				needAuth, _ := proto.GetExtension(method.Options(), commonv1.E_NeedAuth).(bool)
+				rateLimit, _ := proto.GetExtension(method.Options(), commonv1.E_RateLimit).(int32)
 
 				out[key] = MethodMeta{
-					NeedAuth: needAuth,
+					NeedAuth:  needAuth,
+					RateLimit: rateLimit,
 				}
 				log.Debug().Msgf("methodMap detected: %s - %+v", key, out[key])
 			}

@@ -9,10 +9,12 @@ import (
 	grpcInterceptorUtil "gaman-microservice/api-gateway/interceptor/utils"
 	"gaman-microservice/api-gateway/methodmetamap"
 	"gaman-microservice/api-gateway/middleware"
+	redisRateLimiter "gaman-microservice/api-gateway/ratelimiter/redis"
 	"net/http"
 	"os"
 
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
+	"github.com/redis/go-redis/v9"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"google.golang.org/grpc"
@@ -34,10 +36,27 @@ func main() {
 		log.Warn().Msgf("Pretty logging is enabled, this must only be used in local!")
 	}
 
+	// redisClient connection
+	redisClient := redis.NewClient(&redis.Options{
+		Addr:     cfg.RedisAddr,
+		Username: cfg.RedisUser,
+		Password: cfg.RedisPass,
+		DB:       cfg.RedisDB,
+	})
+	err = redisClient.Ping(ctx).Err()
+	if err != nil {
+		log.Fatal().Err(err).Msg("failed to connect to redisClient")
+	}
+	defer redisClient.Close()
+	log.Info().Msgf("Connected to redis %s", cfg.RedisAddr)
+
+	redisRL := redisRateLimiter.NewRedisRateLimiter(redisClient)
+
 	// method meta map
 	methodMap, err := methodmetamap.GetMethodMetaFromFileDesc(
 		userv1.File_user_v1_auth_proto,
 		userv1.File_user_v1_manage_proto,
+		userv1.File_user_v1_forgot_password_proto,
 	)
 	if err != nil {
 		log.Fatal().Err(err).Msg("failed to load method meta map")
@@ -63,7 +82,7 @@ func main() {
 		log.Fatal().Msg("failed to create auth service client")
 	}
 
-	mmProcessor := grpcInterceptorUtil.NewMethodMetaProcessor(methodMap, authSvcClient)
+	mmProcessor := grpcInterceptorUtil.NewMethodMetaProcessor(methodMap, authSvcClient, redisRL)
 
 	mux := runtime.NewServeMux(
 		runtime.WithMiddlewares(middleware.GatewayMiddleware()...),

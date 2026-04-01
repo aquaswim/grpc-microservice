@@ -8,4 +8,5 @@ option go_package = "common/v1;commonv1";
 
 extend google.protobuf.MethodOptions {
   bool need_auth = 50001;
+  int32 rate_limit = 50002;
 }

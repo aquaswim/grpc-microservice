@@ -6,7 +6,8 @@ import (
 )
 
 type MethodMeta struct {
-	NeedAuth bool
+	NeedAuth  bool
+	RateLimit int32
 }
 
 type MethodMetaMap map[string]MethodMeta
