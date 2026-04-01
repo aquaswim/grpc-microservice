@@ -47,7 +47,12 @@ func main() {
 	if err != nil {
 		log.Fatal().Err(err).Msg("failed to connect to redisClient")
 	}
-	defer redisClient.Close()
+	defer func() {
+		err := redisClient.Close()
+		if err != nil {
+			log.Err(err).Msg("failed to close redisClient connection")
+		}
+	}()
 	log.Info().Msgf("Connected to redis %s", cfg.RedisAddr)
 
 	redisRL := redisRateLimiter.NewRedisRateLimiter(redisClient)

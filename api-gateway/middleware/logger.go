@@ -57,7 +57,7 @@ func LoggerMiddleware() runtime.Middleware {
 			// get from context
 			zerolog.Ctx(r.Context()).
 				WithLevel(level).
-				Msgf("[http] %s %s - %d %s", r.Method, r.URL.Path, sw.Status(), time.Since(now))
+				Msgf("[http] %s %s - %d %s %s", r.Method, r.URL.Path, sw.Status(), r.RemoteAddr, time.Since(now))
 		}
 	}
 }

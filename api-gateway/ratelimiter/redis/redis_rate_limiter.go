@@ -41,7 +41,7 @@ func (r redisRateLimiter) ValidateRateLimit(ctx context.Context, limit int32, id
 	out := ratelimiter.RateLimitResult{
 		Allow:          true,
 		QuotaLeft:      limit,
-		QuotaResetTime: time.Now().Add(rateLimitTTL),
+		QuotaResetLeft: rateLimitTTL,
 	}
 
 	currentStr, err := r.redis.Get(ctx, key).Result()
@@ -60,7 +60,6 @@ func (r redisRateLimiter) ValidateRateLimit(ctx context.Context, limit int32, id
 	out.QuotaLeft = limit - int32(current)
 	out.Allow = out.QuotaLeft > 0
 	if out.Allow {
-		out.QuotaResetTime = time.Now().Add(rateLimitTTL)
 		// increment and re-set the ttl
 		_, err := r.redis.TxPipelined(ctx, func(tx redis.Pipeliner) error {
 			tx.Incr(ctx, key)
@@ -80,6 +79,6 @@ func (r redisRateLimiter) ValidateRateLimit(ctx context.Context, limit int32, id
 		l.Err(err).Msg("error getting existing TTL fallback to default")
 		ttl = rateLimitTTL
 	}
-	out.QuotaResetTime = time.Now().Add(ttl)
+	out.QuotaResetLeft = ttl
 	return &out, nil
 }

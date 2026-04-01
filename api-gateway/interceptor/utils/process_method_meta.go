@@ -2,16 +2,17 @@ package grpcInterceptorUtil
 
 import (
 	"context"
-	"fmt"
 	"gaman-microservice/api-gateway/constant"
 	userv1 "gaman-microservice/api-gateway/gen/user/v1"
 	"gaman-microservice/api-gateway/methodmetamap"
 	"gaman-microservice/api-gateway/ratelimiter"
-	"net/http"
 
-	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/rs/zerolog"
+	"google.golang.org/genproto/googleapis/rpc/errdetails"
+	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
+	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/types/known/durationpb"
 )
 
 type MethodMetaProcessor struct {
@@ -59,22 +60,32 @@ func (mmp *MethodMetaProcessor) ProcessMethodMeta(ctx context.Context, method st
 	}
 	if meta.RateLimit > 0 {
 		l.Debug().Int32("rate_limit", meta.RateLimit).Msg("check rate limit")
-		// todo userID from IP
-		rateLimitResult, err := mmp.rateLimiter.ValidateRateLimit(ctx, meta.RateLimit, "x", method)
+
+		ctxIp, ok := ctx.Value(constant.CtxKeyIP).(string)
+		if !ok {
+			ctxIp = "unknown"
+		}
+
+		rateLimitResult, err := mmp.rateLimiter.ValidateRateLimit(ctx, meta.RateLimit, ctxIp, method)
 		if err != nil {
 			return ctx, err
 		}
-		// todo return rate limit info as header
 		if !rateLimitResult.Allow {
 			l.Error().
 				Int32("rate_limit", meta.RateLimit).
 				Int32("quota_left", rateLimitResult.QuotaLeft).
-				Time("quota_reset_at", rateLimitResult.QuotaResetTime).
+				Time("quota_reset_at", rateLimitResult.QuotaResetTime()).
 				Msg("rate limit exceeded")
-			return ctx, &runtime.HTTPStatusError{
-				HTTPStatus: http.StatusTooManyRequests,
-				Err:        fmt.Errorf("rate limit exceeded"),
+
+			st, errx := status.New(codes.ResourceExhausted, "rate limit exceeded").
+				WithDetails(&errdetails.RetryInfo{
+					RetryDelay: durationpb.New(rateLimitResult.QuotaResetLeft),
+				})
+			if errx != nil {
+				l.Error().Err(errx).Msg("failed to add rate limit details")
 			}
+
+			return ctx, st.Err()
 		}
 	}
 

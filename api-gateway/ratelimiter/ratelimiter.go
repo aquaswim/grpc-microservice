@@ -8,7 +8,11 @@ import (
 type RateLimitResult struct {
 	Allow          bool
 	QuotaLeft      int32
-	QuotaResetTime time.Time
+	QuotaResetLeft time.Duration
+}
+
+func (r RateLimitResult) QuotaResetTime() time.Time {
+	return time.Now().Add(r.QuotaResetLeft)
 }
 
 type RateLimiter interface {
