@@ -41,8 +41,13 @@ cp .env.example .env
 | `PRETTY_LOG` | Enable console-friendly logging (zerolog ConsoleWriter) | `false` |
 | `TCP_LISTENER_URL` | The address the gRPC server will listen on | `:50051` |
 | `DATABASE_URL` | PostgreSQL connection string (Required) | - |
-| `TOKEN_SECRET` | Secret key for token generation (Required) | - |
+| `TOKEN_PRIVATE_KEY` | Private key for asymmetric token signing (Required) | - |
+| `TOKEN_PUBLIC_KEY` | Public key for asymmetric token verification (Optional, can be derived from private key if empty) | - |
 | `TOKEN_EXPIRY_MINUTES` | Token expiration time in minutes | `60` |
+| `RESET_TOKEN_EXPIRY_MINUTES` | Password reset token expiration time in minutes | `10` |
+| `RABBITMQ_URL` | RabbitMQ connection string (Required) | - |
+| `RABBITMQ_EXCHANGE` | RabbitMQ exchange name (Required) | - |
+| `TOPIC_USER_FORGOT_PASSWORD` | Topic for user forgot password events | `user-forgot-password` |
 
 ### 4. Run the Application
 
@@ -54,9 +59,21 @@ go run cmd/server/main.go
 
 The service will be accessible at the address specified in `TCP_LISTENER_URL`.
 
+### 5. Generate Asymmetric Keys (Optional)
+
+We use PASETO V4 Public (asymmetric) for token signing. You can generate a new private and public key pair using:
+
+```bash
+go run cmd/token-gen/main.go
+```
+
+The output will provide both `private` and `public` keys in hex format, which you can use in your `.env` file.
+
 ## Project Structure
 
 - `cmd/`: Application entry points.
+    - `server/`: The gRPC server.
+    - `token-gen/`: Utility to generate PASETO asymmetric keys.
 - `db/`: Database migrations and schema.
 - `gen/`: Generated Go and gRPC code.
 - `internal/`: Internal application logic (Hexagonal Architecture).

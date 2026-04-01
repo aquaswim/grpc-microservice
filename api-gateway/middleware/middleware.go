@@ -8,6 +8,7 @@ func GatewayMiddleware() []runtime.Middleware {
 	return []runtime.Middleware{
 		RequestIdMiddleware(),
 		LoggerMiddleware(),
+		AppendIpMiddleware(),
 		RecoverMiddleware,
 	}
 }

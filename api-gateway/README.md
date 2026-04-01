@@ -33,6 +33,10 @@ cp .env.example .env
 | `PRETTY_LOG` | Enable console-friendly logging (zerolog ConsoleWriter) | `false` |
 | `LISTEN_ADDR` | The address the HTTP server will listen on | `:8080` |
 | `USER_SVC_ADDR` | The address of the User gRPC service (Required) | `localhost:50051` |
+| `REDIS_ADDR` | The address of the Redis server | `localhost:6379` |
+| `REDIS_DB` | The Redis database to use | `0` |
+| `REDIS_PASS` | The password for the Redis server | (empty) |
+| `REDIS_USER` | The username for the Redis server | (empty) |
 
 ### 3. Run the Application
 

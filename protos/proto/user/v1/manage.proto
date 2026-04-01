@@ -2,23 +2,45 @@ syntax = "proto3";
 
 package user.v1;
 
+import "buf/validate/validate.proto";
+import "common/v1/method_description.proto";
 import "common/v1/pagination.proto";
 import "user/v1/user.proto";
 
 option go_package = "user/v1;userv1";
 
 service ManageService {
-  rpc CreateUser(CreateUserRequest) returns (CreateUserResponse);
-  rpc GetUser(GetUserRequest) returns (GetUserResponse);
-  rpc UpdateUser(UpdateUserRequest) returns (UpdateUserResponse);
-  rpc DeleteUser(DeleteUserRequest) returns (DeleteUserResponse);
-  rpc ListUsers(ListUsersRequest) returns (ListUsersResponse);
+  rpc CreateUser(CreateUserRequest) returns (CreateUserResponse) {
+    option (common.v1.need_auth) = true;
+  }
+  rpc GetUser(GetUserRequest) returns (GetUserResponse) {
+    option (common.v1.need_auth) = true;
+  }
+  rpc UpdateUser(UpdateUserRequest) returns (UpdateUserResponse) {
+    option (common.v1.need_auth) = true;
+  }
+  rpc DeleteUser(DeleteUserRequest) returns (DeleteUserResponse) {
+    option (common.v1.need_auth) = true;
+  }
+  rpc ListUsers(ListUsersRequest) returns (ListUsersResponse) {
+    option (common.v1.need_auth) = true;
+  }
 }
 
 message CreateUserRequest {
-  string username = 1;
-  string email = 2;
-  string password = 3;
+  string username = 1 [
+    (buf.validate.field).required = true,
+    (buf.validate.field).string.max_len = 254
+  ];
+  string email = 2 [
+    (buf.validate.field).string.email = true,
+    (buf.validate.field).string.max_len = 254,
+    (buf.validate.field).string.min_len = 3
+  ];
+  string password = 3 [
+    (buf.validate.field).string.max_len = 254,
+    (buf.validate.field).string.min_len = 6
+  ];
 }
 
 message CreateUserResponse {
@@ -34,9 +56,20 @@ message GetUserResponse {
 }
 
 message UpdateUserRequest {
-  string id = 1;
-  optional string username = 2;
-  optional string email = 3;
+  string id = 1 [(buf.validate.field).string.uuid = true];
+  string username = 2 [
+    (buf.validate.field).required = true,
+    (buf.validate.field).string.max_len = 254
+  ];
+  string email = 3 [
+    (buf.validate.field).string.email = true,
+    (buf.validate.field).string.max_len = 254,
+    (buf.validate.field).string.min_len = 3
+  ];
+  optional string password = 4 [
+    (buf.validate.field).string.max_len = 254,
+    (buf.validate.field).string.min_len = 6
+  ];
 }
 
 message UpdateUserResponse {

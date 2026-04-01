@@ -5,6 +5,9 @@ managed:
   override:
     - file_option: go_package_prefix
       value: "gaman-microservice/user-service/gen"
+  disable:
+    - file_option: go_package
+      module: buf.build/bufbuild/protovalidate
 plugins:
   - local: protoc-gen-go
     out: gen
@@ -17,3 +20,4 @@ inputs:
     paths:
       - ../protos/proto/user
       - ../protos/proto/common
+      - ../protos/proto/event

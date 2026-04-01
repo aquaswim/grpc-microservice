@@ -1,0 +1,14 @@
+info:
+  name: start
+  type: grpc
+  seq: 1
+
+grpc:
+  url: "{{serverUrl}}"
+  method: /user.v1.ForgotPasswordService/ForgotPassword
+  methodType: unary
+  message: |-
+    {
+      "email": "test@example.com"
+    }
+  auth: inherit

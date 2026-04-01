@@ -1,0 +1,29 @@
+package methodmetamap
+
+import (
+	"fmt"
+	"strings"
+)
+
+type MethodMeta struct {
+	NeedAuth  bool
+	RateLimit int32
+}
+
+type MethodMetaMap map[string]MethodMeta
+
+func (m MethodMetaMap) Get(key string) (*MethodMeta, bool) {
+	val, ok := m[key]
+	if !ok {
+		return nil, ok
+	}
+	return &val, ok
+}
+
+func (m MethodMetaMap) String() string {
+	sb := strings.Builder{}
+	for key, value := range m {
+		_, _ = fmt.Fprintf(&sb, "%s: {%+v}\n", key, value)
+	}
+	return sb.String()
+}
