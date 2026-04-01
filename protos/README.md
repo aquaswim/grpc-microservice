@@ -6,6 +6,7 @@ This is the central repository for API contracts (Protobuf definitions) for the 
 
 - `proto/`: Contains the Protobuf definitions organized by service and version.
   - `proto/common/v1/`: Common Protobuf definitions (e.g., pagination).
+  - `proto/event/v1/`: pubsub message definitions.
   - `proto/user/v1/`: User service Protobuf definitions.
 - `buf.yaml`: Configuration for the Buf CLI.
 - `devbox.json`: Devbox configuration for managing tools.

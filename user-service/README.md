@@ -45,6 +45,9 @@ cp .env.example .env
 | `TOKEN_PUBLIC_KEY` | Public key for asymmetric token verification (Optional, can be derived from private key if empty) | - |
 | `TOKEN_EXPIRY_MINUTES` | Token expiration time in minutes | `60` |
 | `RESET_TOKEN_EXPIRY_MINUTES` | Password reset token expiration time in minutes | `10` |
+| `RABBITMQ_URL` | RabbitMQ connection string (Required) | - |
+| `RABBITMQ_EXCHANGE` | RabbitMQ exchange name (Required) | - |
+| `TOPIC_USER_FORGOT_PASSWORD` | Topic for user forgot password events | `user-forgot-password` |
 
 ### 4. Run the Application
 
