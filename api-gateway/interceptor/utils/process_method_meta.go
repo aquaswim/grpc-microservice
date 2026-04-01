@@ -83,6 +83,7 @@ func (mmp *MethodMetaProcessor) ProcessMethodMeta(ctx context.Context, method st
 				})
 			if errx != nil {
 				l.Error().Err(errx).Msg("failed to add rate limit details")
+				return ctx, status.Errorf(codes.ResourceExhausted, "rate limit exceeded")
 			}
 
 			return ctx, st.Err()

@@ -22,7 +22,7 @@ func (c client) Publish(ctx context.Context, topic string, message []byte) error
 	if err != nil {
 		return appError.ErrInternal.Wrap(err, "failed to create channel")
 	}
-	defer ch.Close()
+	defer channelCloserWithLog(ch)
 
 	// send
 	log.Ctx(ctx).Info().
@@ -55,7 +55,7 @@ func New(conn *amqp.Connection, exchange string) (pubsub.Client, error) {
 		l.Error().Err(err).Msg("failed to create channel")
 		return nil, err
 	}
-	defer ch.Close()
+	defer channelCloserWithLog(ch)
 
 	// exchange stuff
 	l.Debug().Str("exchange", exchange).Msg("declaring exchange")
