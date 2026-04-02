@@ -5,6 +5,7 @@ import (
 	globalLogger "gaman-microservice/notification-service/internal/pkg/global_logger"
 	"gaman-microservice/notification-service/internal/pkg/pubsub"
 	"gaman-microservice/notification-service/internal/pkg/pubsub/rabbitmq"
+	"gaman-microservice/notification-service/internal/service"
 	"gaman-microservice/notification-service/internal/subscriber"
 
 	"github.com/golobby/container/v3"
@@ -32,6 +33,9 @@ func InitContainer() container.Container {
 
 		return rabbitmq.New(conn, cfg.RabbitMqExchange)
 	})
+
+	// services
+	container.MustSingleton(c, service.NewEmailService)
 
 	container.MustSingleton(c, subscriber.New)
 
