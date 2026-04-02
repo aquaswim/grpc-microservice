@@ -130,3 +130,8 @@ func New(conn *amqp.Connection, exchange string) (pubsub.Client, error) {
 		exchange: exchange,
 	}, nil
 }
+
+func (c client) Stop() error {
+	log.Info().Msg("closing rabbitmq connection")
+	return c.conn.Close()
+}

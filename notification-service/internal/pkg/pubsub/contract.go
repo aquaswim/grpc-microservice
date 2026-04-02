@@ -10,4 +10,5 @@ type Message interface {
 
 type Client interface {
 	Receive(topic string, fn func(ctx context.Context, msg Message) error) error
+	Stop() error
 }

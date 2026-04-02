@@ -12,6 +12,7 @@ import (
 
 type Subscriber interface {
 	Listen() error
+	Close() error
 }
 
 type subscriber struct {
@@ -30,10 +31,7 @@ func New(
 }
 
 func (s *subscriber) Listen() (err error) {
-	err = s.client.Receive(s.cfg.UserForgotPasswordTopic, s.forgotPasswordHandler)
-	if err != nil {
-		log.Fatal().Err(err).Msg("failed to receive messages from forgot password queue")
-	}
+	go s.mustCreateListener(s.cfg.UserForgotPasswordTopic, s.forgotPasswordHandler)
 
 	return
 }
@@ -55,4 +53,8 @@ func (s *subscriber) forgotPasswordHandler(ctx context.Context, msg pubsub.Messa
 	msg.Ack(ctx)
 
 	return nil
+}
+
+func (s *subscriber) Close() error {
+	return s.client.Stop()
 }
