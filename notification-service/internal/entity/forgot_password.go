@@ -8,3 +8,9 @@ type ForgotPasswordNotificationData struct {
 	Username  string
 	Email     string
 }
+
+type ResetPasswordSuccess struct {
+	UserId   string
+	Username string
+	Email    string
+}

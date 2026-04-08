@@ -44,3 +44,15 @@ func (p producer) ForgotPassword(ctx context.Context, data *entity.UserForgotPas
 
 	return p.client.Publish(ctx, p.cfg.UserForgotPasswordTopic, msg)
 }
+
+func (p producer) UserResetPasswordDone(ctx context.Context, data *entity.UserResetPasswordDoneData) error {
+	msg, err := proto.Marshal(&eventv1.UserResetPasswordDone{
+		UserId:   data.UserID,
+		Username: data.Username,
+		Email:    data.Email,
+	})
+	if err != nil {
+		return appError.ErrInternal.Wrap(err, "failed to create reset password done message")
+	}
+	return p.client.Publish(ctx, p.cfg.UserResetPasswordDoneTopic, msg)
+}

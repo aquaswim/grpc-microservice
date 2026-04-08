@@ -38,8 +38,13 @@ func New(
 
 func (s *subscriber) Listen() (err error) {
 	go s.mustCreateListener(s.cfg.UserForgotPasswordTopic, s.forgotPasswordHandler)
+	go s.mustCreateListener(s.cfg.UserResetPasswordDoneTopic, s.resetPasswordDoneHandler)
 
 	return
+}
+
+func (s *subscriber) Close() error {
+	return s.client.Stop()
 }
 
 func (s *subscriber) forgotPasswordHandler(ctx context.Context, msg pubsub.Message) error {
@@ -71,6 +76,22 @@ func (s *subscriber) forgotPasswordHandler(ctx context.Context, msg pubsub.Messa
 	return nil
 }
 
-func (s *subscriber) Close() error {
-	return s.client.Stop()
+func (s *subscriber) resetPasswordDoneHandler(ctx context.Context, msg pubsub.Message) error {
+	l := log.Ctx(ctx)
+
+	defer msg.Ack(ctx)
+
+	var payload eventv1.UserResetPasswordDone
+	if err := proto.Unmarshal(msg.GetData(), &payload); err != nil {
+		l.Error().Err(err).Msg("failed to unmarshal forgot password event")
+		return err
+	}
+
+	eventData := entity.ResetPasswordSuccess{
+		UserId:   payload.GetUserId(),
+		Username: payload.GetUsername(),
+		Email:    payload.GetEmail(),
+	}
+
+	return s.emailService.SendResetPasswordSuccessEvent(ctx, eventData)
 }

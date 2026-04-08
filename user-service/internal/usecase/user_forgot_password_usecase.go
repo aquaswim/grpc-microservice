@@ -105,6 +105,8 @@ func (u *userForgotPasswordUseCase) ValidateResetToken(ctx context.Context, toke
 }
 
 func (u *userForgotPasswordUseCase) ResetPassword(ctx context.Context, token, newPassword string) error {
+	l := log.Ctx(ctx)
+
 	resetToken, err := u.resetTokenRepo.FindByToken(ctx, token)
 	if err != nil {
 		if errorx.IsOfType(err, appError.ErrNotFound) {
@@ -131,7 +133,19 @@ func (u *userForgotPasswordUseCase) ResetPassword(ctx context.Context, token, ne
 	}
 
 	// Invalidate token after use
-	_ = u.resetTokenRepo.Delete(ctx, token)
+	err2 := u.resetTokenRepo.Delete(ctx, token)
+	if err2 != nil {
+		l.Warn().Err(err2).Msg("failed to delete reset token")
+	}
+
+	err2 = u.eventProducer.UserResetPasswordDone(ctx, &entity.UserResetPasswordDoneData{
+		UserID:   user.ID,
+		Username: user.Username,
+		Email:    user.Email,
+	})
+	if err2 != nil {
+		l.Warn().Err(err2).Msg("failed to process user reset password done event")
+	}
 
 	return nil
 }

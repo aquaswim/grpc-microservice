@@ -10,6 +10,7 @@ import (
 
 type EmailService interface {
 	SendForgotPasswordEmail(ctx context.Context, data *entity.ForgotPasswordNotificationData) error
+	SendResetPasswordSuccessEvent(ctx context.Context, data entity.ResetPasswordSuccess) error
 }
 
 type emailService struct {
@@ -28,7 +29,14 @@ func (e emailService) SendForgotPasswordEmail(ctx context.Context, data *entity.
 		return err
 	}
 
-	// send email
+	// todo send email
 	l.Info().Str("email_content", emailContent).Msg("sending forgot password email")
+	return nil
+}
+
+func (e emailService) SendResetPasswordSuccessEvent(ctx context.Context, data entity.ResetPasswordSuccess) error {
+	l := log.Ctx(ctx)
+	//TODO implement me
+	l.Info().Any("data", data).Msg("sending reset password success event")
 	return nil
 }
