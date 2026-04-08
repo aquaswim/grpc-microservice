@@ -4,7 +4,10 @@ import (
 	"context"
 	eventv1 "gaman-microservice/notification-service/gen/event/v1"
 	"gaman-microservice/notification-service/internal/config"
+	"gaman-microservice/notification-service/internal/entity"
 	"gaman-microservice/notification-service/internal/pkg/pubsub"
+	"gaman-microservice/notification-service/internal/service"
+	"time"
 
 	"github.com/rs/zerolog/log"
 	"google.golang.org/protobuf/proto"
@@ -16,17 +19,20 @@ type Subscriber interface {
 }
 
 type subscriber struct {
-	client pubsub.Client
-	cfg    *config.Config
+	client       pubsub.Client
+	cfg          *config.Config
+	emailService service.EmailService
 }
 
 func New(
 	client pubsub.Client,
 	cfg *config.Config,
+	emailService service.EmailService,
 ) Subscriber {
 	return &subscriber{
-		client: client,
-		cfg:    cfg,
+		client:       client,
+		cfg:          cfg,
+		emailService: emailService,
 	}
 }
 
@@ -39,18 +45,28 @@ func (s *subscriber) Listen() (err error) {
 func (s *subscriber) forgotPasswordHandler(ctx context.Context, msg pubsub.Message) error {
 	l := log.Ctx(ctx)
 
-	var event eventv1.UserForgotPassword
-	if err := proto.Unmarshal(msg.GetData(), &event); err != nil {
+	// note: implement nack if error if needed
+	defer msg.Ack(ctx)
+
+	// validate the message if needed
+	var payload eventv1.UserForgotPassword
+	if err := proto.Unmarshal(msg.GetData(), &payload); err != nil {
 		l.Error().Err(err).Msg("failed to unmarshal forgot password event")
 		return err
 	}
-	// todo implement this
-	l.Debug().
-		Bytes("data", msg.GetData()).
-		Str("token", event.GetResetToken()).
-		Msg("received forgot password event")
 
-	msg.Ack(ctx)
+	forgotPasswordData := &entity.ForgotPasswordNotificationData{
+		Token:     payload.GetResetToken(),
+		Username:  payload.GetUsername(),
+		Email:     payload.GetEmail(),
+		ExpiredAt: time.Unix(payload.GetExpiredAt(), 0),
+	}
+
+	err := s.emailService.SendForgotPasswordEmail(ctx, forgotPasswordData)
+	if err != nil {
+		l.Error().Err(err).Msg("failed to send forgot password email")
+		return err
+	}
 
 	return nil
 }
