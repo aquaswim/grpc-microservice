@@ -6,6 +6,7 @@ import (
 	appError "gaman-microservice/user-service/internal/domain/app_error"
 	"gaman-microservice/user-service/internal/domain/entity"
 	"gaman-microservice/user-service/internal/port/out"
+	"time"
 
 	"github.com/Masterminds/squirrel"
 	"github.com/jackc/pgx/v5"
@@ -108,6 +109,8 @@ func (r *userRepository) Update(ctx context.Context, user *entity.User) error {
 	query, args, err := r.builder.Update("users").
 		Set("username", user.Username).
 		Set("email", user.Email).
+		Set("password", user.Password).
+		Set("updated_at", time.Now()).
 		Where(squirrel.Eq{"id": user.ID}).
 		ToSql()
 	if err != nil {
