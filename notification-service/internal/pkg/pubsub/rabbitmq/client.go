@@ -108,7 +108,12 @@ func New(conn *amqp.Connection, exchange string) (pubsub.Client, error) {
 		l.Error().Err(err).Msg("failed to create channel")
 		return nil, err
 	}
-	defer ch.Close()
+	defer func() {
+		err := ch.Close()
+		if err != nil {
+			l.Error().Err(err).Msg("failed to close channel")
+		}
+	}()
 
 	// exchange stuff
 	l.Debug().Str("exchange", exchange).Msg("declaring exchange")

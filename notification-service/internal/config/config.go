@@ -14,6 +14,8 @@ type Config struct {
 
 	UserForgotPasswordTopic    string `env:"TOPIC_USER_FORGOT_PASSWORD" envDefault:"user-forgot-password"`
 	UserResetPasswordDoneTopic string `env:"TOPIC_USER_RESET_PASSWORD_DONE" envDefault:"user-reset-password-done"`
+
+	MailpitUrl string `env:"MAILPIT_URL,required"`
 }
 
 func Load() (*Config, error) {
