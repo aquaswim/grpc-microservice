@@ -52,7 +52,24 @@ func (e emailService) SendForgotPasswordEmail(ctx context.Context, data *entity.
 
 func (e emailService) SendResetPasswordSuccessEvent(ctx context.Context, data entity.ResetPasswordSuccess) error {
 	l := log.Ctx(ctx)
-	//TODO implement me
-	l.Info().Any("data", data).Msg("sending reset password success event")
+
+	emailContent, err := emailTemplate.RenderTemplate("reset_password_done.gohtml", data)
+	if err != nil {
+		l.Error().Err(err).Msg("failed to render reset password success email template")
+		return err
+	}
+
+	sendEmailRes, err := e.mailClient.SendEmail(ctx, &email.SendEmailReq{
+		Subject:  "Password Updated Successfully",
+		ToEmail:  data.Email,
+		ToName:   data.Username,
+		BodyHtml: emailContent,
+		BodyText: "Your password has been successfully updated",
+	})
+	if err != nil {
+		l.Error().Err(err).Msg("failed to send reset password success email")
+		return err
+	}
+	l.Info().Str("email_id", sendEmailRes.EmailId).Msg("reset password success email sent")
 	return nil
 }

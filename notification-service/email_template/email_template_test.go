@@ -28,6 +28,11 @@ func TestGenerateAllEmail(t *testing.T) {
 			Email:     "test@example.com",
 			ExpiredAt: time.Now(),
 		}},
+		{"reset_password_done.gohtml", entity.ResetPasswordSuccess{
+			UserId:   "user-id-lala",
+			Username: "test-username",
+			Email:    "test@example.com",
+		}},
 	}
 
 	for _, tdata := range tc {
