@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gaman-user-service
+  labels:
+    app: gaman-user-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gaman-user-service
+  template:
+    metadata:
+      name: gaman-user-service
+      labels:
+        app: gaman-user-service
+    spec:
+      containers:
+        - name: gaman-user-service
+          image: git.dev.aquaswim.my.id/aquaswim/gaman-microservice/user-service # todo: can be overrided
+          imagePullPolicy: IfNotPresent
+          resources:
+            requests:
+              memory: "8Mi"
+              cpu: "0.1"
+            limits:
+              memory: "32Mi"
+              cpu: "0.25"
+          ports:
+            - containerPort: 50051
+              protocol: TCP
+          envFrom:
+            - secretRef:
+                name: gaman-user-service-secret
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: gaman-user-service-secret
+  labels:
+    app: gaman-user-service
+type: Opaque
+stringData:
+  DATABASE_URL: "postgres://postgres:password@postgres-service.gaman.svc:5432/gaman-ms-user?sslmode=disable"
+  TOKEN_PRIVATE_KEY: "0202fa3ed0e6861a49bd439d2a5bb0f0dac9eaf77aed5d92d748534a60d8d2037cba9be91bc76aa81cc4141a0d4ea71c63e0f8dd3f801fd7ca24806ad6ec4e57"
+  TOKEN_PUBLIC_KEY: "7cba9be91bc76aa81cc4141a0d4ea71c63e0f8dd3f801fd7ca24806ad6ec4e57"
+  RABBITMQ_URL: "amqp://admin:password@rabbitmq-service.gaman.svc:5672/"
+  RABBITMQ_EXCHANGE: "gaman-ms"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gaman-user-service
+spec:
+  selector:
+    app: gaman-user-service
+  ports:
+    - protocol: TCP
+      port: 50051
+      targetPort: 50051

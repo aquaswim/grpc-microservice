@@ -1,0 +1,6 @@
+name: dev
+variables:
+  - name: baseUrl
+    value: http://gaman.playground.lan
+  - secret: true
+    name: __login_token

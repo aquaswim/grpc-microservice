@@ -1,0 +1,6 @@
+namespace: gaman
+
+resources:
+  - apigateway-service.yaml
+  - notification-service.yaml
+  - user-service.yaml

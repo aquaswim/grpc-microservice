@@ -1,5 +1,1 @@
-# ignore .idea folder
 .idea
-.devbox
-.env
-.DS_Store

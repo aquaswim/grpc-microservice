@@ -1,0 +1,7 @@
+namespace: gaman
+
+resources:
+  - mailpit.yaml
+  - postgres.yaml
+  - rabbitmq.yaml
+  - redis.yaml

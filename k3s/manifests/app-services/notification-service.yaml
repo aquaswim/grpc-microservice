@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gaman-notification-service
+  labels:
+    app: gaman-notification-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gaman-notification-service
+  template:
+    metadata:
+      name: gaman-notification-service
+      labels:
+        app: gaman-notification-service
+    spec:
+      containers:
+        - name: gaman-notification-service
+          image: git.dev.aquaswim.my.id/aquaswim/gaman-microservice/notification-service # todo: can be overrided
+          imagePullPolicy: IfNotPresent
+          resources:
+            requests:
+              memory: "8Mi"
+              cpu: "0.1"
+            limits:
+              memory: "16Mi"
+              cpu: "0.25"
+          envFrom:
+            - secretRef:
+                name: gaman-notification-service-secret
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: gaman-notification-service-secret
+  labels:
+    app: gaman-notification-service
+type: Opaque
+stringData:
+  RABBITMQ_URL: "amqp://admin:password@rabbitmq-service.gaman.svc:5672/"
+  RABBITMQ_EXCHANGE: "gaman-ms"
+  MAILPIT_URL: "http://mailpit-service.gaman.svc:8025"
