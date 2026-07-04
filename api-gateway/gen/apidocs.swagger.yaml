@@ -1,0 +1,390 @@
+swagger: "2.0"
+info:
+  title: common/v1/method_description.proto
+  version: version not set
+tags:
+  - name: AuthService
+  - name: ForgotPasswordService
+  - name: ManageService
+consumes:
+  - application/json
+produces:
+  - application/json
+paths:
+  /v1/auth/forgot-password:
+    post:
+      operationId: ForgotPasswordService_ForgotPassword
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1ForgotPasswordResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/v1ForgotPasswordRequest'
+      tags:
+        - ForgotPasswordService
+  /v1/auth/login:
+    post:
+      operationId: AuthService_Login
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1LoginResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/v1LoginRequest'
+      tags:
+        - AuthService
+  /v1/auth/profile:
+    get:
+      operationId: AuthService_GetMyProfile
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1GetMyProfileResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      tags:
+        - AuthService
+    patch:
+      operationId: AuthService_UpdateMyProfile
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1UpdateMyProfileResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/v1UpdateMyProfileRequest'
+      tags:
+        - AuthService
+  /v1/auth/reset-password:
+    post:
+      operationId: ForgotPasswordService_ResetPasswordWithToken
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1ResetPasswordWithTokenResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/v1ResetPasswordWithTokenRequest'
+      tags:
+        - ForgotPasswordService
+  /v1/auth/validate-reset-password:
+    post:
+      operationId: ForgotPasswordService_ValidateResetPasswordToken
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1ValidateResetPasswordTokenResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/v1ValidateResetPasswordTokenRequest'
+      tags:
+        - ForgotPasswordService
+  /v1/users:
+    get:
+      operationId: ManageService_ListUsers
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1ListUsersResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: pagination.pageSize
+          in: query
+          required: false
+          type: integer
+          format: int32
+        - name: pagination.pageToken
+          in: query
+          required: false
+          type: string
+      tags:
+        - ManageService
+    post:
+      operationId: ManageService_CreateUser
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1CreateUserResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/v1CreateUserRequest'
+      tags:
+        - ManageService
+  /v1/users/{id}:
+    get:
+      operationId: ManageService_GetUser
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1GetUserResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: id
+          in: path
+          required: true
+          type: string
+      tags:
+        - ManageService
+    delete:
+      operationId: ManageService_DeleteUser
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1DeleteUserResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: id
+          in: path
+          required: true
+          type: string
+      tags:
+        - ManageService
+    put:
+      operationId: ManageService_UpdateUser
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1UpdateUserResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: id
+          in: path
+          required: true
+          type: string
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/ManageServiceUpdateUserBody'
+      tags:
+        - ManageService
+definitions:
+  ManageServiceUpdateUserBody:
+    type: object
+    properties:
+      username:
+        type: string
+      email:
+        type: string
+      password:
+        type: string
+  protobufAny:
+    type: object
+    properties:
+      '@type':
+        type: string
+    additionalProperties: {}
+  rpcStatus:
+    type: object
+    properties:
+      code:
+        type: integer
+        format: int32
+      message:
+        type: string
+      details:
+        type: array
+        items:
+          type: object
+          $ref: '#/definitions/protobufAny'
+  v1CreateUserRequest:
+    type: object
+    properties:
+      username:
+        type: string
+      email:
+        type: string
+      password:
+        type: string
+  v1CreateUserResponse:
+    type: object
+    properties:
+      user:
+        $ref: '#/definitions/v1User'
+  v1DeleteUserResponse:
+    type: object
+    properties:
+      success:
+        type: boolean
+  v1ForgotPasswordRequest:
+    type: object
+    properties:
+      email:
+        type: string
+  v1ForgotPasswordResponse:
+    type: object
+    properties:
+      success:
+        type: boolean
+      message:
+        type: string
+  v1GetMyProfileResponse:
+    type: object
+    properties:
+      user:
+        $ref: '#/definitions/v1User'
+  v1GetUserResponse:
+    type: object
+    properties:
+      user:
+        $ref: '#/definitions/v1User'
+  v1ListUsersResponse:
+    type: object
+    properties:
+      users:
+        type: array
+        items:
+          type: object
+          $ref: '#/definitions/v1User'
+      pagination:
+        $ref: '#/definitions/v1PaginationResponse'
+  v1LoginRequest:
+    type: object
+    properties:
+      username:
+        type: string
+      password:
+        type: string
+  v1LoginResponse:
+    type: object
+    properties:
+      token:
+        type: string
+      expiresAt:
+        type: string
+  v1PaginationRequest:
+    type: object
+    properties:
+      pageSize:
+        type: integer
+        format: int32
+      pageToken:
+        type: string
+  v1PaginationResponse:
+    type: object
+    properties:
+      nextPageToken:
+        type: string
+  v1ResetPasswordWithTokenRequest:
+    type: object
+    properties:
+      token:
+        type: string
+      newPassword:
+        type: string
+  v1ResetPasswordWithTokenResponse:
+    type: object
+    properties:
+      success:
+        type: boolean
+      message:
+        type: string
+  v1UpdateMyProfileRequest:
+    type: object
+    properties:
+      username:
+        type: string
+      email:
+        type: string
+      password:
+        type: string
+  v1UpdateMyProfileResponse:
+    type: object
+    properties:
+      success:
+        type: boolean
+  v1UpdateUserResponse:
+    type: object
+    properties:
+      user:
+        $ref: '#/definitions/v1User'
+  v1User:
+    type: object
+    properties:
+      id:
+        type: string
+      username:
+        type: string
+      email:
+        type: string
+  v1ValidateResetPasswordTokenRequest:
+    type: object
+    properties:
+      token:
+        type: string
+  v1ValidateResetPasswordTokenResponse:
+    type: object
+    properties:
+      valid:
+        type: boolean
+      message:
+        type: string
