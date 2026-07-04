@@ -1,0 +1,20 @@
+{
+	"folders": [
+		{
+			"path": "protos"
+		},
+		{
+			"path": "api-gateway"
+		},
+		{
+			"path": "user-service"
+		},
+		{
+			"path": "notification-service"
+		},
+		{
+			"path": "k3s"
+		}
+	],
+	"settings": {}
+}
